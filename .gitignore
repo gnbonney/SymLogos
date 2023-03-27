@@ -1,0 +1,28 @@
+# Python files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Other files
+*.log
+*.bak
+*.swp
+*.swo
+*.cache
+*.DS_Store
