@@ -4,14 +4,17 @@ from sympy.logic import *
 # Define basic classes for propositional variables and modal operators.
 
 class Proposition:
-    def __init__(self, symbol):
-        self.symbol = symbol
+    def __init__(self, name):
+        self.name = name
 
     def __str__(self):
-        return self.symbol
+        return self.name
 
     def __repr__(self):
-        return f"Proposition('{self.symbol}')"
+        return f"Proposition('{self.name}')"
+
+    def not_(self):
+        return Not(self)
 
     def box(self):
         return Necessity(self)
@@ -19,11 +22,21 @@ class Proposition:
     def diamond(self):
         return Possibility(self)
 
-    def neg(self):
-        return Negation(self)
 
+class And:
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
 
-class Negation:
+    def __str__(self):
+        left_str = str(self.left)
+        right_str = str(self.right)
+        return f"({left_str} ∧ {right_str})"
+
+    def __repr__(self):
+        return f"And({repr(self.left)}, {repr(self.right)})"
+
+class Not:
     def __init__(self, formula):
         self.formula = formula
 
@@ -31,7 +44,7 @@ class Negation:
         return f"¬{self.formula}"
 
     def __repr__(self):
-        return f"Negation({repr(self.formula)})"
+        return f"Not({repr(self.formula)})"
 
 
 class Necessity:
