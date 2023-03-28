@@ -16,7 +16,7 @@ This document lists the additional features and tasks needed to achieve the goal
 ### Higher-order quantification
 
 - [x] Implement a class for higher-order predicates.
-- [ ] Implement a class for higher-order functions.
+- [x] Implement a class for higher-order functions.
 - [ ] Extend the existing quantifier classes in SymPy to support higher-order predicates and functions.
 
 ### Modal operators and semantics
