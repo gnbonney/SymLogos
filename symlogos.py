@@ -105,6 +105,24 @@ class Exists:
     def __repr__(self):
         return f"Exists({repr(self.variable)}, {repr(self.formula)})"
 
+# Add a class for high order functions
+
+class HigherOrderFunction:
+    def __init__(self, name, *args):
+        self.name = name
+        self.args = args
+
+    def __call__(self, *args):
+        return Predicate(self.name, *args)
+
+    def __str__(self):
+        return f"{self.name}({', '.join(map(str, self.args))})"
+
+    def __repr__(self):
+        return f"HigherOrderFunction('{self.name}', {', '.join(map(repr, self.args))})"
+
+
+
 # Add functions for defining axioms, proving theorems, and checking consistency and validity.
 
 def define_axiom():
@@ -139,3 +157,7 @@ if __name__ == "__main__":
     
     print(forall_px)
     print(exists_py)
+
+    F = HigherOrderFunction("F")
+    f_of_p = F(p)
+    print(f_of_p)

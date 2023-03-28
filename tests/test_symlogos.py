@@ -1,5 +1,5 @@
 from sympy import symbols
-from symlogos import Proposition, And, Not, Necessity, Possibility, Predicate, Forall, Exists
+from symlogos import Proposition, And, Not, Necessity, Possibility, Predicate, Forall, Exists, HigherOrderFunction
 
 def test_negation():
     p = Proposition('p')
@@ -54,3 +54,27 @@ def test_exists():
     Py = Predicate("P", y)
     exists_py = Exists(y, Py)
     assert str(exists_py) == "∃y: P(y)"
+
+def test_higher_order_function():
+    f = HigherOrderFunction("f")
+    assert str(f) == "f"
+    assert repr(f) == "HigherOrderFunction('f', None, None)"
+
+def test_higher_order_function_with_arg_function():
+    g = HigherOrderFunction("g")
+    f_of_g = HigherOrderFunction("f", arg_function=g)
+    assert str(f_of_g) == "f(g)"
+    assert repr(f_of_g) == "HigherOrderFunction('f', HigherOrderFunction('g', None, None), None)"
+
+def test_higher_order_function_with_return_function():
+    g = HigherOrderFunction("g")
+    f_to_g = HigherOrderFunction("f", return_function=g)
+    assert str(f_to_g) == "f -> g"
+    assert repr(f_to_g) == "HigherOrderFunction('f', None, HigherOrderFunction('g', None, None))"
+
+def test_higher_order_function_with_arg_and_return_function():
+    h = HigherOrderFunction("h")
+    g = HigherOrderFunction("g")
+    f_of_h_to_g = HigherOrderFunction("f", arg_function=h, return_function=g)
+    assert str(f_of_h_to_g) == "f(h) -> g"
+    assert repr(f_of_h_to_g) == "HigherOrderFunction('f', HigherOrderFunction('h', None, None), HigherOrderFunction('g', None, None))"
