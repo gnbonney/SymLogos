@@ -68,6 +68,43 @@ class Possibility:
     def __repr__(self):
         return f"Possibility({repr(self.formula)})"
 
+# Add classes for higher-order predicates
+
+class Predicate:
+    def __init__(self, name, *args):
+        self.name = name
+        self.args = args
+
+    def __str__(self):
+        return f"{self.name}({', '.join(map(str, self.args))})"
+
+    def __repr__(self):
+        return f"Predicate('{self.name}', {', '.join(map(repr, self.args))})"
+
+
+class Forall:
+    def __init__(self, variable, formula):
+        self.variable = variable
+        self.formula = formula
+
+    def __str__(self):
+        return f"∀{self.variable}: {self.formula}"
+
+    def __repr__(self):
+        return f"Forall({repr(self.variable)}, {repr(self.formula)})"
+
+
+class Exists:
+    def __init__(self, variable, formula):
+        self.variable = variable
+        self.formula = formula
+
+    def __str__(self):
+        return f"∃{self.variable}: {self.formula}"
+
+    def __repr__(self):
+        return f"Exists({repr(self.variable)}, {repr(self.formula)})"
+
 # Add functions for defining axioms, proving theorems, and checking consistency and validity.
 
 def define_axiom():
@@ -93,3 +130,12 @@ if __name__ == "__main__":
     print(not_p)
     print(box_p)
     print(diamond_p)
+
+    x, y = symbols("x y")
+    Px = Predicate("P", x)
+    Py = Predicate("P", y)
+    forall_px = Forall(x, Px)
+    exists_py = Exists(y, Py)
+    
+    print(forall_px)
+    print(exists_py)
