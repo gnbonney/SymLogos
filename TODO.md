@@ -21,7 +21,7 @@ This document lists the additional features and tasks needed to achieve the goal
 
 ### Modal operators and semantics
 
-- [ ] Improve the existing Necessity and Possibility classes to support more complex formulas and syntax.
+- [x] Improve the existing Necessity and Possibility classes to support more complex formulas and syntax.
 - [ ] Implement a class for modal frames to represent possible worlds.
 - [ ] Implement a class for modal models to evaluate formulas within the context of modal frames.
 
@@ -38,8 +38,8 @@ This document lists the additional features and tasks needed to achieve the goal
 
 ### Integration with SymPy
 
-- [ ] Ensure that the new classes and functions integrate smoothly with SymPy's existing functionality.
-- [ ] Add support for simplification, substitution, and other standard SymPy operations on higher-order modal logic expressions.
+- [x] Ensure that the new classes and functions integrate smoothly with SymPy's existing functionality.
+- [x] Add support for simplification, substitution, and other standard SymPy operations on higher-order modal logic expressions.
 
 ### Documentation and examples
 
