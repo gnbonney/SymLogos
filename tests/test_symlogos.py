@@ -1,5 +1,5 @@
 from sympy import symbols
-from symlogos import Proposition, And, Not, Necessity, Possibility, Predicate, Forall, Exists, HigherOrderFunction
+from symlogos import *
 
 def test_negation():
     p = Proposition('p')
@@ -78,3 +78,50 @@ def test_higher_order_function_with_arg_and_return_function():
     f_of_h_to_g = HigherOrderFunction("f", arg_function=h, return_function=g)
     assert str(f_of_h_to_g) == "f(h) -> g"
     assert repr(f_of_h_to_g) == "HigherOrderFunction('f', HigherOrderFunction('h', None, None), HigherOrderFunction('g', None, None))"
+
+def test_substitute():
+    p, q = Proposition("p"), Proposition("q")
+    not_p = Not(p)
+    not_q = Not(q)
+    assert not_p.substitute(p, q) == not_q
+
+    and_pq = And(p, q)
+    and_pr = And(p, p)
+    assert and_pq.substitute(q, p) == and_pr
+
+
+def test_evaluate():
+    p = Proposition("p")
+    assignment = {"p": True}
+    assert p.evaluate(assignment) == True
+
+
+def test_simplify():
+    p, q = Proposition("p"), Proposition("q")
+    and_true_p = And(True, p)
+    assert and_true_p.simplify() == p
+
+    and_false_p = And(False, p)
+    assert and_false_p.simplify() == False
+
+    not_true = Not(True)
+    assert not_true.simplify() == False
+
+    not_false = Not(False)
+    assert not_false.simplify() == True
+
+    not_not_p = Not(Not(p))
+    assert not_not_p.simplify() == p
+
+    necessity_true = Necessity(True)
+    assert necessity_true.simplify() == True
+
+    possibility_true = Possibility(True)
+    assert possibility_true.simplify() == True
+
+
+def test_complex_simplify():
+    p, q = Proposition("p"), Proposition("q")
+    complex_expr = And(p, Not(Not(q)))
+    simplified_expr = And(p, q)
+    assert complex_expr.simplify() == simplified_expr
