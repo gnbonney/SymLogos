@@ -30,6 +30,7 @@ To install the dependencies for SymLogos, you can use `pip`. First, navigate to 
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## Running Tests
 
