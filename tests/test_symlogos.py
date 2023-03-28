@@ -125,3 +125,48 @@ def test_complex_simplify():
     complex_expr = And(p, Not(Not(q)))
     simplified_expr = And(p, q)
     assert complex_expr.simplify() == simplified_expr
+
+def test_add_remove_axiom():
+    axiom_set = AxiomSet()
+    p = Proposition("p")
+    q = Proposition("q")
+
+    assert len(axiom_set) == 0
+    assert p not in axiom_set
+
+    axiom_set.add_axiom(p)
+    assert len(axiom_set) == 1
+    assert p in axiom_set
+
+    axiom_set.add_axiom(q)
+    assert len(axiom_set) == 2
+    assert q in axiom_set
+
+    axiom_set.remove_axiom(p)
+    assert len(axiom_set) == 1
+    assert p not in axiom_set
+    assert q in axiom_set
+
+def test_iterate_axioms():
+    axiom_set = AxiomSet()
+    p = Proposition("p")
+    q = Proposition("q")
+
+    axiom_set.add_axiom(p)
+    axiom_set.add_axiom(q)
+
+    axiom_list = [axiom for axiom in axiom_set]
+
+    assert p in axiom_list
+    assert q in axiom_list
+
+def test_repr():
+    axiom_set = AxiomSet()
+    p = Proposition("p")
+    q = Proposition("q")
+
+    axiom_set.add_axiom(p)
+    axiom_set.add_axiom(q)
+
+    assert "p" in repr(axiom_set)
+    assert "q" in repr(axiom_set)

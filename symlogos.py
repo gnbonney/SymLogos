@@ -279,7 +279,31 @@ class HigherOrderFunction(Expression):
 
     def __repr__(self):
         return f"HigherOrderFunction('{self.name}', {repr(self.arg_function)}, {repr(self.return_function)})"
+
 # Add functions for defining axioms, proving theorems, and checking consistency and validity.
+
+class AxiomSet:
+    def __init__(self):
+        self.axioms = set()
+
+    def add_axiom(self, axiom):
+        self.axioms.add(axiom)
+
+    def remove_axiom(self, axiom):
+        if axiom in self.axioms:
+            self.axioms.remove(axiom)
+
+    def __iter__(self):
+        return iter(self.axioms)
+
+    def __len__(self):
+        return len(self.axioms)
+
+    def __contains__(self, axiom):
+        return axiom in self.axioms
+
+    def __repr__(self):
+        return f"AxiomSet({', '.join(map(str, self.axioms))})"
 
 def define_axiom():
     pass

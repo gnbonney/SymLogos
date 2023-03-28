@@ -27,7 +27,7 @@ This document lists the additional features and tasks needed to achieve the goal
 
 ### Axioms and proof system
 
-- [ ] Develop a mechanism for defining axioms with higher-order quantification and modal operators.
+- [x] Develop a mechanism for defining axioms with higher-order quantification and modal operators.
 - [ ] Implement a formal proof system (e.g., natural deduction, sequent calculus) for higher-order modal logic.
 - [ ] Implement functions for theorem proving and proof verification.
 
