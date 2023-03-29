@@ -29,6 +29,12 @@ This document lists the additional features and tasks needed to achieve the goal
 
 - [x] Develop a mechanism for defining axioms with higher-order quantification and modal operators.
 - [ ] Implement a formal proof system (e.g., natural deduction, sequent calculus) for higher-order modal logic.
+    - [ ] Define basic data structures for expressions, terms, formulas, and rules.
+    - [ ] Create a class for higher-order modal logic with methods for constructing formulas and rules, and for manipulating expressions.
+    - [ ] Define a proof system for higher-order modal logic, such as natural deduction or sequent calculus, and implement rules for this system.
+    - [ ] Develop a method to verify proofs in your proof system.
+    - [ ] Create functions for parsing and formatting expressions and proofs.
+    - [ ] Implement a main function for your library that allows users to input expressions and proofs, then verify and display the results.
 - [ ] Implement functions for theorem proving and proof verification.
 
 ### Consistency and validity checking
