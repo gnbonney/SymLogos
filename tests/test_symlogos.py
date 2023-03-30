@@ -306,3 +306,16 @@ def test_existential_instantiation():
     result = rule.apply(Exists(x, Predicate("P", a)))
 
     assert result == Predicate("P", a)
+
+def test_modal_modus_ponens():
+    p = Proposition("p")
+    q = Proposition("q")
+    box_p_implies_q = Necessity(Implication(p, q))
+    box_p = Necessity(p)
+
+    modal_modus_ponens = Rule("Modal Modus Ponens", [box_p_implies_q, box_p], Necessity(q))
+    premise1 = box_p_implies_q
+    premise2 = box_p
+
+    result = modal_modus_ponens.apply(premise1, premise2)
+    assert result == Necessity(q)
