@@ -46,10 +46,18 @@ pytest
 ```
 
 You may need to set PYTHONPATH first
-```
+```bash
 export PYTHONPATH=$(pwd)
 pytest tests
 ```
+
+To check coverage:
+```bash
+coverage run -m pytest
+coverage html --omit="/usr/*,*/test*,*/__init__.py"
+```
+
+Now you can look at coverage reports in htmlcov folder.
 
 ## Usage (Code Examples)
 
