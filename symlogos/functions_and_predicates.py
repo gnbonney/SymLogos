@@ -15,9 +15,6 @@ class Predicate(Expression):
     def __hash__(self):
         return hash((type(self), self.symbol, self.terms))
 
-    def __hash__(self):
-        return hash((self.symbol, self.terms))
-
     def __str__(self):
         return f"{self.symbol}({', '.join(map(str, self.terms))})"
 

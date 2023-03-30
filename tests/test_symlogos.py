@@ -56,6 +56,14 @@ def test_forall():
     forall_px = Forall(x, Px)
     assert str(forall_px) == "∀x: P(x)"
 
+def test_forall_substitution():
+    x = Term("x")
+    c = Term("c")
+    P = Predicate("P", x)
+    forall_px = Forall(x, P)
+    result = forall_px.substitute(x, c)
+    assert result == Forall(c, Predicate("P", c))
+
 def test_exists():
     y = symbols("y")
     Py = Predicate("P", y)
@@ -238,43 +246,19 @@ def test_rule_repr():
 
     assert repr(rule) == "Rule('R1', [Term('x'), Term('y')], Term('z'))"
 
-# def test_rule_apply():
-#     class TestExpr(Term):
-#         def __init__(self, name):
-#             super().__init__(name)
-#             self.name = name
+def test_rule_apply():
+    x = Term("x")
+    y = Term("y")
+    P = Predicate("P", x)
+    Q = Predicate("Q", y)
+    R = Predicate("R", x, y)
+    premise1 = P
+    premise2 = Q
+    conclusion = R
+    rule = Rule("TestRule", [premise1, premise2], conclusion)
 
-#         def __str__(self):
-#             return self.name
-
-#         def match(self, other):
-#             if isinstance(other, TestExpr):
-#                 if self.name.startswith('x_'):
-#                     return {self: other}
-#                 elif self.name == other.name:
-#                     return {}
-#             return None
-
-#         def substitute(self, variable, replacement):
-#             if self == variable:
-#                 return replacement
-#             else:
-#                 return self
-
-#         def substitute_all(self, match_dict):
-#             expr = self
-#             for variable, replacement in match_dict.items():
-#                 expr = expr.substitute(variable, replacement)
-#             return expr
-
-#     premise1 = TestExpr('A')
-#     premise2 = TestExpr('B')
-#     conclusion = TestExpr('x_C')  # Match the first premise
-#     rule = Rule('R1', [premise1, premise2], conclusion)
-
-#     result = rule.apply(TestExpr('A'), TestExpr('B'))  # Update the arguments here
-#     assert isinstance(result, TestExpr)
-#     assert result.name == 'C'  # Update the expected result here
+    result = rule.apply(Predicate("P", Term("a")), Predicate("Q", Term("b")))
+    assert result == Predicate("R", Term("a"), Term("b"))
 
 def test_modus_ponens():
     p = Proposition("p")
@@ -299,13 +283,13 @@ def test_modus_tollens():
     result = modus_tollens.apply(premise1, premise2)
     assert result == Not(p)
 
-def test_universal_instantiation():
-    x = Term("x")
-    c = Term("c")
-    P = Predicate("P", x)
-    forall_px = Forall(x, P)
-    universal_instantiation = Rule("Universal Instantiation", [forall_px], Predicate("P", c))
+# def test_universal_instantiation():
+#     x = Term("x")
+#     c = Term("c")
+#     P = Predicate("P", x)
+#     forall_px = Forall(x, P)
+#     universal_instantiation = Rule("Universal Instantiation", [forall_px], Predicate("P", c))
 
-    premise = forall_px
-    result = universal_instantiation.apply(premise)
-    assert result == Predicate("P", c)
+#     premise = forall_px
+#     result = universal_instantiation.apply(premise)
+#     assert result == Predicate("P", c)

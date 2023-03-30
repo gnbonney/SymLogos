@@ -20,11 +20,11 @@ class Forall(Expression):
     def __repr__(self):
         return f"Forall({repr(self.variable)}, {repr(self.predicate)})"
     
-    def substitute(self, mapping):
-        if self.variable in mapping:
-            raise ValueError(f"Cannot substitute bound variable '{self.variable}'")
+    def substitute(self, variable, replacement):
+        mapping = {variable: replacement}
         new_predicate = self.predicate.substitute(mapping)
-        return Forall(self.variable, new_predicate)
+        new_variable = replacement if self.variable == variable else self.variable
+        return Forall(new_variable, new_predicate)
 
     def match(self, other):
         if isinstance(other, Forall):

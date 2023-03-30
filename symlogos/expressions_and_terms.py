@@ -34,9 +34,12 @@ class Expression(ABC):
                 new_attributes[attr] = value.substitute_all(substitutions)
             elif isinstance(value, Term) and value in substitutions:
                 new_attributes[attr] = substitutions[value]
+            elif isinstance(value, tuple):  
+                new_attributes[attr] = tuple(v.substitute_all(substitutions) if isinstance(v, Expression) else substitutions.get(v, v) for v in value)
             else:
                 new_attributes[attr] = value
-        return self.__class__(*new_attributes.values())
+        result = self.__class__(*new_attributes.values())
+        return result
 
 class Term(Expression):
     def __init__(self, name):
@@ -47,17 +50,19 @@ class Term(Expression):
             return self.name == other.name
         return False
 
+    def __hash__(self):
+        return hash((type(self), self.name))
+
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return f"Term('{self.name}')"
 
-    def substitute(self, variable, replacement):
-        if self == variable:
-            return replacement
-        else:
-            return self
+    def substitute(self, mapping):
+        if self in mapping:
+            return mapping[self]
+        return self
 
     def evaluate(self, assignment):
         if self.name in assignment:
