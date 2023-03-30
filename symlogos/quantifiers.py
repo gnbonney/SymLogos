@@ -73,16 +73,12 @@ class Exists(Expression):
 
     def match(self, expression):
         if isinstance(expression, Exists):
-            substitutions = self.variable.match(expression.variable)
-            if substitutions is not None:
-                new_predicate = self.predicate.substitute(substitutions)
-                if new_predicate == expression.predicate:
-                    print(f"Match successful: self: {self}, expression: {expression}, substitutions: {substitutions}")
-                    return substitutions
-                else:
-                    print(f"Matching failed for predicates: self.predicate: {self.predicate}, expression.predicate: {expression.predicate}")
+            predicate_match = self.predicate.match(expression.predicate)
+            if predicate_match is not None:
+                print(f"Match successful: self: {self}, expression: {expression}, substitutions: {predicate_match}")
+                return predicate_match
             else:
-                print(f"Matching failed for variables: self.variable: {self.variable}, expression.variable: {expression.variable}")
+                print(f"Matching failed for predicates: self.predicate: {self.predicate}, expression.predicate: {expression.predicate}")
         else:
             print(f"Matching failed for different types: self: {self}, expression: {expression}")
         return None

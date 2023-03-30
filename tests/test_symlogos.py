@@ -295,3 +295,14 @@ def test_universal_instantiation():
     premise = forall_px
     result = universal_instantiation.apply(premise)
     assert result == Predicate("P", c)
+
+def test_existential_instantiation():
+    x = Term("x")
+    P = Predicate("P", x)
+    premise = Exists(x, P)
+    rule = Rule("Existential Instantiation", [premise], P)
+
+    a = Term("a")
+    result = rule.apply(Exists(x, Predicate("P", a)))
+
+    assert result == Predicate("P", a)
