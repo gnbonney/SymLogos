@@ -285,13 +285,13 @@ def test_modus_tollens():
     result = modus_tollens.apply(premise1, premise2)
     assert result == Not(p)
 
-# def test_universal_instantiation():
-#     x = Term("x")
-#     c = Term("c")
-#     P = Predicate("P", x)
-#     forall_px = Forall(x, P)
-#     universal_instantiation = Rule("Universal Instantiation", [forall_px], Predicate("P", c))
+def test_universal_instantiation():
+    x = Term("x")
+    c = Term("c")
+    P = Predicate("P", x)
+    forall_px = Forall(x, P)
+    universal_instantiation = Rule("Universal Instantiation", [forall_px], Predicate("P", c))
 
-#     premise = forall_px
-#     result = universal_instantiation.apply(premise)
-#     assert result == Predicate("P", c)
+    premise = forall_px
+    result = universal_instantiation.apply(premise)
+    assert result == Predicate("P", c)
