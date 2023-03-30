@@ -257,8 +257,10 @@ def test_rule_apply():
     conclusion = R
     rule = Rule("TestRule", [premise1, premise2], conclusion)
 
-    result = rule.apply(Predicate("P", Term("a")), Predicate("Q", Term("b")))
-    assert result == Predicate("R", Term("a"), Term("b"))
+    a = Term("a")
+    b = Term("b")
+    result = rule.apply(Predicate("P", a), Predicate("Q", b))
+    assert result == Predicate("R", a, b)
 
 def test_modus_ponens():
     p = Proposition("p")

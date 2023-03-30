@@ -40,7 +40,6 @@ class Expression(ABC):
                 new_attributes[attr] = value
         result = self.__class__(*new_attributes.values())
         return result
-
 class Term(Expression):
     def __init__(self, name):
         self.name = name
@@ -75,9 +74,15 @@ class Term(Expression):
             if self.name == other.name:
                 print(f"Match successful: self: {self}, other: {other}")
                 return {}
+            elif self.is_variable() or other.is_variable():
+                print(f"Match successful: self: {self}, other: {other}")
+                return {self: other}
             else:
                 print(f"Matching failed for terms: self: {self}, other: {other}")
                 return None
         else:
             print(f"Matching failed for different types: self: {self}, other: {other}")
             return None
+
+    def is_variable(self):
+        return self.name.islower()

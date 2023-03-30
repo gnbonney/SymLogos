@@ -24,6 +24,14 @@ class Predicate(Expression):
     def substitute(self, mapping):
         new_args = [arg.substitute(mapping) if isinstance(arg, Expression) else arg for arg in self.terms]
         return Predicate(self.symbol, *new_args)
+
+    def substitute_all_terms(self, term_replacement_dict):
+        print(f"Original predicate: {self}")
+        new_terms = [term_replacement_dict.get(term, term) for term in self.terms]
+        print(f"New terms: {new_terms}")
+        new_predicate = Predicate(self.symbol, *new_terms)  # Change this line
+        print(f"New predicate: {new_predicate}")
+        return new_predicate
     
     def evaluate(self, valuation=None):
         if valuation is None:

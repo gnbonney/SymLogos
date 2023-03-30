@@ -35,6 +35,9 @@ class Proposition(Expression):
         else:
             return self
 
+    def substitute_all_terms(self, term_replacement_dict):
+        return self
+
     def evaluate(self, assignment):
         if self.name in assignment:
             return assignment[self.name]

@@ -144,6 +144,10 @@ class Not(Expression):
     
     def substitute(self, variable, replacement):
         return Not(self.expr.substitute(variable, replacement))
+
+    def substitute_all_terms(self, term_replacement_dict):
+        new_expr = self.expr.substitute_all_terms(term_replacement_dict)  # Change this line
+        return Not(new_expr)
     
     def evaluate(self, valuation=None):
         if valuation is None:

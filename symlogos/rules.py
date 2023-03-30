@@ -20,7 +20,6 @@ class Rule:
         match_dicts = []
         for premise, arg in zip(self.premises, args):
             current_match = premise.match(arg)
-            print(f"Premise: {premise}, Arg: {arg}, Match: {current_match}")
             if current_match is None:
                 return None
             match_dicts.append(current_match)
@@ -29,8 +28,7 @@ class Rule:
         for d in match_dicts:
             match_dict.update(d)
 
-        print(f"Match dict: {match_dict}")
-        result = self.conclusion.substitute_all(match_dict)
+        result = self.conclusion.substitute_all_terms(match_dict)  # Change this line
         return result
 
 def check_consistency():
