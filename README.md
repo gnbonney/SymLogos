@@ -37,11 +37,17 @@ pip install -r requirements.txt
 To run the tests, you need to have Python and `pytest` installed on your system. First, install the testing dependencies by navigating to the `tests` directory and running:
 
 ```bash
-pip install -r tests/requirements.txt
+pip install -r requirements-test.txt
 ```
 
 Then you can run pytest
 ```bash
+pytest
+```
+
+You may need to set PYTHONPATH first
+```
+export PYTHONPATH=$(pwd)
 pytest tests
 ```
 

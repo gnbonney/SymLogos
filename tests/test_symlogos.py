@@ -1,5 +1,12 @@
 from sympy import symbols
-from symlogos import *
+from symlogos.axiom_set import AxiomSet
+from symlogos.connectives import Implication, And, Not
+from symlogos.expression import Expression
+from symlogos.function_and_predicates import Predicate, HigherOrderFunction
+from symlogos.modal_operators import Possibility, Necessity
+from symlogos.propositions_and_terms import Proposition, Term
+from symlogos.quantifiers import Forall, Exists
+from symlogos.rules import Rule
 
 def test_negation():
     p = Proposition('p')
@@ -89,7 +96,6 @@ def test_substitute():
     and_pr = And(p, p)
     assert and_pq.substitute(q, p) == and_pr
 
-
 def test_evaluate():
     p = Proposition("p")
     assignment = {"p": True}
@@ -170,3 +176,136 @@ def test_repr():
 
     assert "p" in repr(axiom_set)
     assert "q" in repr(axiom_set)
+
+def test_term_creation():
+    t = Term('x')
+    assert isinstance(t, Expression)
+    assert t.name == 'x'
+
+def test_term_str():
+    t = Term('x')
+    assert str(t) == 'x'
+
+def test_term_repr():
+    t = Term('x')
+    assert repr(t) == "Term('x')"
+
+def test_rule_creation():
+    class TestExpr(Term):
+        def __init__(self, name):
+            super().__init__(name)
+            self.name = name
+
+        def __str__(self):
+            return self.name
+
+        def match(self, other):
+            if isinstance(other, TestExpr):
+                return {Term('x'): self}
+            return {}
+
+        def substitute(self, variable, replacement):
+            if self == variable:
+                return replacement
+            else:
+                return self
+
+        def __repr__(self):
+            return f"Term('{self.name}')"
+
+    premise1 = TestExpr('A')
+    premise2 = TestExpr('B')
+    conclusion = TestExpr('C')
+    rule = Rule('R1', [premise1, premise2], conclusion)
+
+    assert str(rule) == "R1: A, B ⊢ C"
+    assert repr(rule) == "Rule('R1', [Term('A'), Term('B')], Term('C'))"
+
+
+def test_rule_str():
+    premise1 = Term('x')
+    premise2 = Term('y')
+    conclusion = Term('z')
+    rule = Rule('R1', [premise1, premise2], conclusion)
+
+    assert str(rule) == "R1: x, y ⊢ z"
+
+def test_rule_repr():
+    premise1 = Term('x')
+    premise2 = Term('y')
+    conclusion = Term('z')
+    rule = Rule('R1', [premise1, premise2], conclusion)
+
+    assert repr(rule) == "Rule('R1', [Term('x'), Term('y')], Term('z'))"
+
+# def test_rule_apply():
+#     class TestExpr(Term):
+#         def __init__(self, name):
+#             super().__init__(name)
+#             self.name = name
+
+#         def __str__(self):
+#             return self.name
+
+#         def match(self, other):
+#             if isinstance(other, TestExpr):
+#                 if self.name.startswith('x_'):
+#                     return {self: other}
+#                 elif self.name == other.name:
+#                     return {}
+#             return None
+
+#         def substitute(self, variable, replacement):
+#             if self == variable:
+#                 return replacement
+#             else:
+#                 return self
+
+#         def substitute_all(self, match_dict):
+#             expr = self
+#             for variable, replacement in match_dict.items():
+#                 expr = expr.substitute(variable, replacement)
+#             return expr
+
+#     premise1 = TestExpr('A')
+#     premise2 = TestExpr('B')
+#     conclusion = TestExpr('x_C')  # Match the first premise
+#     rule = Rule('R1', [premise1, premise2], conclusion)
+
+#     result = rule.apply(TestExpr('A'), TestExpr('B'))  # Update the arguments here
+#     assert isinstance(result, TestExpr)
+#     assert result.name == 'C'  # Update the expected result here
+
+def test_modus_ponens():
+    p = Proposition("p")
+    q = Proposition("q")
+    modus_ponens = Rule("Modus Ponens", [Implication(p, q), p], q)
+
+    premise1 = Implication(p, q)
+    premise2 = p
+
+    result = modus_ponens.apply(premise1, premise2)
+    assert result == q
+
+
+def test_modus_tollens():
+    p = Proposition("p")
+    q = Proposition("q")
+    modus_tollens = Rule("Modus Tollens", [Implication(p, q), Not(q)], Not(p))
+
+    premise1 = Implication(p, q)
+    premise2 = Not(q)
+
+    result = modus_tollens.apply(premise1, premise2)
+    assert result == Not(p)
+
+def test_universal_instantiation():
+    x = Term("x")
+    c = Term("c")
+    P = Predicate("P", x)
+    forall_px = Forall(x, P)
+    universal_instantiation = Rule("Universal Instantiation", [forall_px], Predicate("P", c))
+
+    premise = forall_px
+    result = universal_instantiation.apply(premise)
+    assert result == Predicate("P", c)
