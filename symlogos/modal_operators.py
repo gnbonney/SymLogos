@@ -1,4 +1,4 @@
-from .expression import Expression, simplify_expression
+from .expressions_and_terms import Expression, simplify_expression
 
 class Necessity(Expression):
     def __init__(self, expr):
@@ -28,9 +28,20 @@ class Necessity(Expression):
 
     def match(self, other):
         if isinstance(other, Necessity):
-            return self.expr.match(other.expr)
+            match_result = self.expr.match(other.expr)
+            if match_result is None:
+                print(f"Matching failed for expressions: self: {self}, other: {other}")
+            else:
+                print(f"Match successful: self: {self}, other: {other}, bindings: {match_result}")
+            return match_result
         else:
-            return self.expr.match(other)
+            match_result = self.expr.match(other)
+            if match_result is None:
+                print(f"Matching failed for expressions with different types: self: {self}, other: {other}")
+            else:
+                print(f"Match successful: self: {self}, other: {other}, bindings: {match_result}")
+            return match_result
+
 
 
 class Possibility(Expression):
@@ -64,6 +75,16 @@ class Possibility(Expression):
 
     def match(self, other):
         if isinstance(other, Possibility):
-            return self.expr.match(other.expr)
+            match_result = self.expr.match(other.expr)
+            if match_result is None:
+                print(f"Matching failed for expressions: self: {self}, other: {other}")
+            else:
+                print(f"Match successful: self: {self}, other: {other}, bindings: {match_result}")
+            return match_result
         else:
-            return self.expr.match(other)
+            match_result = self.expr.match(other)
+            if match_result is None:
+                print(f"Matching failed for expressions with different types: self: {self}, other: {other}")
+            else:
+                print(f"Match successful: self: {self}, other: {other}, bindings: {match_result}")
+            return match_result

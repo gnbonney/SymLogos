@@ -1,4 +1,4 @@
-from .expression import Expression
+from .expressions_and_terms import Expression
 
 class Forall(Expression):
     def __init__(self, variable, predicate):
@@ -26,11 +26,25 @@ class Forall(Expression):
         new_predicate = self.predicate.substitute(mapping)
         return Forall(self.variable, new_predicate)
 
-    def match(self, expr):
-        if isinstance(expr, Forall):
-            if self.variable.match(expr.variable) and self.predicate.match(expr.predicate):
-                return {}
+    def match(self, other):
+        if isinstance(other, Forall):
+            variable_match = self.variable.match(other.variable)
+            predicate_match = self.predicate.match(other.predicate)
+            print(f"Forall match: self: {self}, other: {other}, variable_match: {variable_match}, predicate_match: {predicate_match}")
+            if variable_match is not None and predicate_match is not None:
+                bindings = {}
+                bindings.update(variable_match)
+                bindings.update(predicate_match)
+                return bindings
         return None
+
+    def substitute_all(self, substitutions):
+        # Prevent the bound variable from being substituted
+        if self.variable in substitutions:
+            del substitutions[self.variable]
+        
+        # Use the default implementation for the remaining substitutions
+        return super().substitute_all(substitutions)
 
 class Exists(Expression):
     def __init__(self, variable, predicate):
@@ -63,5 +77,12 @@ class Exists(Expression):
             if substitutions is not None:
                 new_predicate = self.predicate.substitute(substitutions)
                 if new_predicate == expression.predicate:
+                    print(f"Match successful: self: {self}, expression: {expression}, substitutions: {substitutions}")
                     return substitutions
+                else:
+                    print(f"Matching failed for predicates: self.predicate: {self.predicate}, expression.predicate: {expression.predicate}")
+            else:
+                print(f"Matching failed for variables: self.variable: {self.variable}, expression.variable: {expression.variable}")
+        else:
+            print(f"Matching failed for different types: self: {self}, expression: {expression}")
         return None

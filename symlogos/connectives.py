@@ -1,4 +1,4 @@
-from .expression import Expression, simplify_expression
+from .expressions_and_terms import Expression, simplify_expression
 
 class Implication(Expression):
     def __init__(self, left, right):
@@ -50,8 +50,14 @@ class Implication(Expression):
 
     def match(self, other):
         if isinstance(other, Implication):
-            if self.left.match(other.left) and self.right.match(other.right):
-                return {}
+            left_match = self.left.match(other.left)
+            right_match = self.right.match(other.right)
+            print(f"Implication match: self: {self}, other: {other}, left_match: {left_match}, right_match: {right_match}")
+            if left_match is not None and right_match is not None:
+                bindings = {}
+                bindings.update(left_match)
+                bindings.update(right_match)
+                return bindings
         return None
 
 class And(Expression):
@@ -113,6 +119,7 @@ class And(Expression):
     def match(self, other):
         if isinstance(other, And):
             if self.left.match(other.left) and self.right.match(other.right):
+                print(f"And match: self: {self}, other: {other}")
                 return {}
         return None
 
@@ -170,6 +177,12 @@ class Not(Expression):
     
     def match(self, other):
         if isinstance(other, Not):
-            return self.expr.match(other.expr)
+            print(f"Matching Not: self: {self}, other: {other}")
+            result = self.expr.match(other.expr)
+            print(f"Match result: {result}")
+            return result
         else:
-            return self.expr.match(other)
+            print(f"Matching without Not: self: {self}, other: {other}")
+            result = self.expr.match(other)
+            print(f"Match result: {result}")
+            return result

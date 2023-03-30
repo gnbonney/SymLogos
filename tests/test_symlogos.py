@@ -1,10 +1,10 @@
 from sympy import symbols
 from symlogos.axiom_set import AxiomSet
 from symlogos.connectives import Implication, And, Not
-from symlogos.expression import Expression
-from symlogos.function_and_predicates import Predicate, HigherOrderFunction
+from symlogos.expressions_and_terms import Expression, Term
+from symlogos.functions_and_predicates import Predicate, HigherOrderFunction
 from symlogos.modal_operators import Possibility, Necessity
-from symlogos.propositions_and_terms import Proposition, Term
+from symlogos.proposition import Proposition
 from symlogos.quantifiers import Forall, Exists
 from symlogos.rules import Rule
 

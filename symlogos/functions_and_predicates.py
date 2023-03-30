@@ -1,4 +1,4 @@
-from .expression import Expression
+from .expressions_and_terms import Expression
 
 # higher-order predicates
 
@@ -47,10 +47,18 @@ class Predicate(Expression):
                 for t1, t2 in zip(self.terms, other.terms):
                     b = t1.match(t2)
                     if b is None:
+                        print(f"Matching failed for: self: {self}, other: {other}, terms: {t1}, {t2}")
                         return None
+                    print(f"Matched terms: {t1}, {t2}, binding: {b}")
                     bindings.update(b)
+                print(f"Match successful: self: {self}, other: {other}, bindings: {bindings}")
                 return bindings
-        return None
+            else:
+                print(f"Matching failed due to different symbol or term count: self: {self}, other: {other}")
+                return None
+        else:
+            print(f"Matching failed as other is not a Predicate: self: {self}, other: {other}")
+            return None
 
 # high order functions
 
@@ -91,6 +99,7 @@ class HigherOrderFunction(Expression):
                 if self.return_function is None or self.return_function.match(expr.return_function):
                     # match arguments
                     if len(self.args) != len(expr.args):
+                        print(f"Matching failed due to different argument count: self: {self}, expr: {expr}")
                         return None
                     substitutions = {}
                     for i in range(len(self.args)):
@@ -98,7 +107,16 @@ class HigherOrderFunction(Expression):
                         arg2 = expr.args[i]
                         result = arg1.match(arg2)
                         if result is None:
+                            print(f"Matching failed for arguments: self: {self}, expr: {expr}, args: {arg1}, {arg2}")
                             return None
+                        print(f"Matched arguments: {arg1}, {arg2}, binding: {result}")
                         substitutions.update(result)
+                    print(f"Match successful: self: {self}, expr: {expr}, bindings: {substitutions}")
                     return substitutions
-        return None
+            else:
+                print(f"Matching failed due to argument or return function mismatch: self: {self}, expr: {expr}")
+                return None
+        else:
+            print(f"Matching failed as expr is not a HigherOrderFunction or name mismatch: self: {self}, expr: {expr}")
+            return None
+

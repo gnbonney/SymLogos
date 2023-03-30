@@ -1,4 +1,4 @@
-from symlogos.function_and_predicates import Proposition, Predicate, Forall, Exists, HigherOrderFunction, Implication
+from symlogos.functions_and_predicates import Proposition, Predicate, Forall, Exists, HigherOrderFunction, Implication
 
 def demonstrate_propositions():
     print("=== Propositions ===")

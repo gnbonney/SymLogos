@@ -1,3 +1,4 @@
+from .expressions_and_terms import Expression
 class Rule:
     def __init__(self, name, premises, conclusion):
         self.name = name
@@ -16,17 +17,20 @@ class Rule:
         if len(args) != len(self.premises):
             raise ValueError("Wrong number of arguments")
 
-        match_dict = {}
+        match_dicts = []
         for premise, arg in zip(self.premises, args):
             current_match = premise.match(arg)
             print(f"Premise: {premise}, Arg: {arg}, Match: {current_match}")
             if current_match is None:
                 return None
-            match_dict.update(current_match)
+            match_dicts.append(current_match)
+
+        match_dict = {}
+        for d in match_dicts:
+            match_dict.update(d)
 
         print(f"Match dict: {match_dict}")
         result = self.conclusion.substitute_all(match_dict)
-        print(f"Result: {result}")
         return result
 
 def check_consistency():
