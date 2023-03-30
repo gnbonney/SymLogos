@@ -51,11 +51,48 @@ export PYTHONPATH=$(pwd)
 pytest tests
 ```
 
-## Getting Started
-
-To start using SymLogos, simply import the library and create a propositional variable:
+## Usage (Code Examples)
 
 ```python
-from symlogos import Proposition
+from symlogos.logic import Rule, Proposition, Implication, And, Not
+from symlogos.logic.functions_and_predicates import Predicate, HigherOrderFunction
+from symlogos.logic.quantifiers import Forall, Exists, Term
+```
 
+### Example 1: Using Modus Ponens
+```python
 p = Proposition("p")
+q = Proposition("q")
+modus_ponens = Rule("Modus Ponens", [Implication(p, q), p], q)
+
+premise1 = Implication(p, q)
+premise2 = p
+
+result = modus_ponens.apply(premise1, premise2)
+print(result)  # Should output "q"
+```
+
+### Example 2: Using Higher Order Functions
+```python
+h = HigherOrderFunction("H")
+P = Predicate("P", h)
+
+R = Rule("Example Rule", [P], P)
+
+premise = Predicate("P", HigherOrderFunction("G"))
+result = R.apply(premise)
+print(result)  # Should output "P(G)"
+```
+
+### Example 3: Using Universal Quantifiers
+```python
+x = Term("x")
+c = Term("c")
+Px = Predicate("P", x)
+forall_px = Forall(x, Px)
+universal_instantiation = Rule("Universal Instantiation", [forall_px], Predicate("P", c))
+
+premise = forall_px
+result = universal_instantiation.apply(premise)
+print(result)  # Should output "P(c)"
+```
