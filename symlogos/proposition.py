@@ -44,9 +44,12 @@ class Proposition(Expression):
         else:
             raise ValueError(f"Assignment for proposition '{self.name}' not found.")
 
-    def match(self, other):
-        if isinstance(other, Proposition) and self.name == other.name:
-            print(f"Proposition match: self: {self}, other: {other}")
-            return {}
-        else:
-            return None
+    def match(self, other, bindings=None):
+        if bindings is None:
+            bindings = {}
+
+        if isinstance(other, Proposition):
+            if self.name == "*" or other.name == "*" or self.name == other.name:
+                return bindings
+
+        return None

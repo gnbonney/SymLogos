@@ -78,6 +78,11 @@ class And(Expression):
         right_substituted = self.right.substitute(variable, replacement)
         return And(left_substituted, right_substituted)
 
+    def substitute_all_terms(self, term_replacement_dict):
+        left_substituted = self.left.substitute_all_terms(term_replacement_dict)
+        right_substituted = self.right.substitute_all_terms(term_replacement_dict)
+        return And(left_substituted, right_substituted)
+
     def evaluate(self, valuation=None):
         if valuation is None:
             return self
@@ -116,11 +121,59 @@ class And(Expression):
 
         return And(left_simplified, right_simplified)
 
-    def match(self, other):
+    def match(self, other, bindings=None):
+        if bindings is None:
+            bindings = {}
+            
         if isinstance(other, And):
-            if self.left.match(other.left) and self.right.match(other.right):
-                print(f"And match: self: {self}, other: {other}")
-                return {}
+            left_match = self.left.match(other.left, bindings)
+            right_match = self.right.match(other.right, bindings)
+            
+            if left_match is None or right_match is None:
+                return None
+            
+            new_bindings = dict(bindings)
+            new_bindings.update(left_match)
+            new_bindings.update(right_match)
+            return new_bindings
+
+        if isinstance(other, Expression):
+            return bindings
+
+        return None
+
+
+class Or(Expression):
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+
+    def __repr__(self):
+        return f"({self.left} ∨ {self.right})"
+
+    def __eq__(self, other):
+        if not isinstance(other, Or):
+            return False
+        return self.left == other.left and self.right == other.right
+
+    def variables(self):
+        return self.left.variables().union(self.right.variables())
+
+    def substitute_all_terms(self, term_replacement_dict):
+        new_left = self.left.substitute_all_terms(term_replacement_dict)
+        new_right = self.right.substitute_all_terms(term_replacement_dict)
+        return Or(new_left, new_right)
+
+    def match(self, other, bindings=None):
+        if bindings is None:
+            bindings = {}
+
+        if isinstance(other, Or):
+            left_match = self.left.match(other.left, bindings)
+            if left_match is not None:
+                right_match = self.right.match(other.right, left_match)
+                if right_match is not None:
+                    return right_match
         return None
 
 class Not(Expression):

@@ -40,6 +40,11 @@ class Expression(ABC):
                 new_attributes[attr] = value
         result = self.__class__(*new_attributes.values())
         return result
+
+    def substitute_all_terms(self, term_replacement_dict):
+        return self
+
+
 class Term(Expression):
     def __init__(self, name):
         self.name = name
