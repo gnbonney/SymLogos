@@ -1,6 +1,6 @@
 # TODO
 
-This document lists the additional features and tasks needed to achieve the goals of the SymLogos project. The project aims to extend SymPy's capabilities to support higher-order modal logic.
+This document lists the additional features and tasks needed to achieve the goals of the SymLogos project. The project aims to extend SymPy's capabilities to support higher-order modal logic and reproduce the work of Christoph Benzmüller and Bruno Woltzenlogel Paleo.
 
 ## Goals
 
@@ -31,7 +31,7 @@ This document lists the additional features and tasks needed to achieve the goal
 - [ ] Implement a formal proof system (e.g., natural deduction, sequent calculus) for higher-order modal logic.
     - [x] Define basic data structures for expressions, terms, formulas, and rules.
     - [x] Create a class for higher-order modal logic with methods for constructing formulas and rules, and for manipulating expressions.
-    - [ ] Define a proof system for higher-order modal logic, such as natural deduction or sequent calculus, and implement rules for this system.
+    - [ ] Implement a tableau method for higher-order modal logic.
     - [ ] Develop a method to verify proofs in your proof system.
     - [ ] Create functions for parsing and formatting expressions and proofs.
     - [ ] Implement a main function for your library that allows users to input expressions and proofs, then verify and display the results.
