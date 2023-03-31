@@ -26,6 +26,18 @@ class Forall(Expression):
         new_variable = replacement if self.variable == variable else self.variable
         return Forall(new_variable, new_predicate)
 
+    def substitute_all(self, substitutions):
+        # Prevent the bound variable from being substituted
+        if self.variable in substitutions:
+            del substitutions[self.variable]
+        
+        # Use the default implementation for the remaining substitutions
+        return super().substitute_all(substitutions)
+
+    def substitute_all_terms(self, term_replacement_dict):
+        new_predicate = self.predicate.substitute_all_terms(term_replacement_dict)
+        return Forall(self.variable, new_predicate)
+
     def match(self, other):
         if isinstance(other, Forall):
             variable_match = self.variable.match(other.variable)
@@ -37,14 +49,6 @@ class Forall(Expression):
                 bindings.update(predicate_match)
                 return bindings
         return None
-
-    def substitute_all(self, substitutions):
-        # Prevent the bound variable from being substituted
-        if self.variable in substitutions:
-            del substitutions[self.variable]
-        
-        # Use the default implementation for the remaining substitutions
-        return super().substitute_all(substitutions)
 
 class Exists(Expression):
     def __init__(self, variable, predicate):

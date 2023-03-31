@@ -319,3 +319,18 @@ def test_modal_modus_ponens():
 
     result = modal_modus_ponens.apply(premise1, premise2)
     assert result == Necessity(q)
+
+def test_barcan_formula():
+    x = Term("x")
+    P = Predicate("P", x)
+    forall_P = Forall(x, P)
+    box_forall_P = Necessity(forall_P)
+    box_P = Necessity(P)
+    forall_box_P = Forall(x, box_P)
+    
+    barcan_formula = Rule("Barcan Formula", [forall_box_P], box_forall_P)
+    premise = forall_box_P
+    
+    result = barcan_formula.apply(premise)
+    
+    assert result == box_forall_P
