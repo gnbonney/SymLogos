@@ -32,10 +32,22 @@ This document lists the additional features and tasks needed to achieve the goal
     - [x] Define basic data structures for expressions, terms, formulas, and rules.
     - [x] Create a class for higher-order modal logic with methods for constructing formulas and rules, and for manipulating expressions.
     - [ ] Implement a tableau method for higher-order modal logic.
+        - [ ] **Normalize the input formula:** Convert the input formula into an equivalent formula in negation normal form (NNF) as opposed to clausal normal form (CNF).
+        - [ ] **Define tableau rules:** Define the set of tableau expansion rules specific to higher-order modal logic. These rules should cover higher-order quantifiers, modal operators, and other logical connectives. The rules should handle both the signed and unsigned versions of the formulas.
+        - [ ] **Implement the tableau construction algorithm:** Implement an algorithm to construct a tableau for the input formula. The algorithm should apply the tableau rules in a systematic and exhaustive manner until no further rule can be applied or the tableau is closed (i.e., contains a contradiction).
+        - [ ] **Determine the satisfiability of the formula:** Check whether the constructed tableau is closed or open. If the tableau is closed, the input formula is unsatisfiable. If the tableau is open, the formula is satisfiable.
+        - [ ] **(Optional) Extract a model or countermodel:** If the tableau is open and satisfiable, you can extract a model from the open branches of the tableau. The model can be used to provide a countermodel for the negation of the input formula.
     - [ ] Develop a method to verify proofs in your proof system.
     - [ ] Create functions for parsing and formatting expressions and proofs.
     - [ ] Implement a main function for your library that allows users to input expressions and proofs, then verify and display the results.
 - [ ] Implement functions for theorem proving and proof verification.
+1. **Implement the syntax and semantics for higher-order modal logic:** Create classes and methods for handling higher-order modal logic expressions, including higher-order quantifiers, modal operators, and logical connectives.
+
+- [ ] **Normalize the input formula:** Convert the input formula into an equivalent formula in a standard form, such as clausal normal form (CNF) or negation normal form (NNF). This can be done using methods like alpha-conversion, beta-conversion, and Skolemization.
+- [ ] **Define tableau rules:** Define the set of tableau expansion rules specific to higher-order modal logic. These rules should cover higher-order quantifiers, modal operators, and other logical connectives. The rules should handle both the signed and unsigned versions of the formulas.
+- [ ] **Implement the tableau construction algorithm:** Implement an algorithm to construct a tableau for the input formula. The algorithm should apply the tableau rules in a systematic and exhaustive manner until no further rule can be applied or the tableau is closed (i.e., contains a contradiction).
+- [ ] **Determine the satisfiability of the formula:** Check whether the constructed tableau is closed or open. If the tableau is closed, the input formula is unsatisfiable. If the tableau is open, the formula is satisfiable.
+- [ ] **(Optional) Extract a model or countermodel:** If the tableau is open and satisfiable, you can extract a model from the open branches of the tableau. The model can be used to provide a countermodel for the negation of the input formula.
 
 ### Consistency and validity checking
 
