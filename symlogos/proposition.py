@@ -1,33 +1,47 @@
-from .expressions_and_terms import Expression
-from .connectives import Not
-from .modal_operators import Possibility, Necessity
+import sympy
+from .expressions_and_terms import LogicalExpression
 
-class Proposition(Expression):
-    def __init__(self, name):
-        self.name = name
+class Proposition(LogicalExpression):
+    def __new__(cls, name):
+        obj = super().__new__(cls)
+        obj.name = sympy.Symbol(name)
+        return obj
 
     def __eq__(self, other):
         if isinstance(other, Proposition):
             return self.name == other.name
-        return False        
+        return False
 
     def __hash__(self):
         return hash((type(self), self.name))
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     def __repr__(self):
         return f"Proposition('{self.name}')"
 
-    def not_(self):
-        return Not(self)
+    def match(self, other, bindings=None):
+        if bindings is None:
+            bindings = {}
 
-    def box(self):
-        return Necessity(self)
+        if isinstance(other, Proposition):
+            if self.name == other.name:
+                return bindings
+            elif self.is_variable() or other.is_variable():
+                if self not in bindings:
+                    bindings[self] = other
+                    return bindings
+                elif bindings[self] == other:
+                    return bindings
+            return None
+        return None
 
-    def diamond(self):
-        return Possibility(self)
+    def evaluate(self, assignment):
+        return assignment.get(self, self)
+
+    def simplify(self):
+        return self
 
     def substitute(self, variable, replacement):
         if self == variable:
@@ -35,21 +49,16 @@ class Proposition(Expression):
         else:
             return self
 
+    def substitute_all(self, substitutions):
+        new_attributes = {}
+        for attr, value in self.__dict__.items():
+            if isinstance(value, sympy.Basic):
+                new_attributes[attr] = value.subs(substitutions)
+            else:
+                new_attributes[attr] = value
+        result = self.__class__(*new_attributes.values())
+        return result
+
     def substitute_all_terms(self, term_replacement_dict):
-        return self
+        return self.subs(term_replacement_dict)
 
-    def evaluate(self, assignment):
-        if self.name in assignment:
-            return assignment[self.name]
-        else:
-            raise ValueError(f"Assignment for proposition '{self.name}' not found.")
-
-    def match(self, other, bindings=None):
-        if bindings is None:
-            bindings = {}
-
-        if isinstance(other, Proposition):
-            if self.name == "*" or other.name == "*" or self.name == other.name:
-                return bindings
-
-        return None

@@ -1,6 +1,6 @@
-from .expressions_and_terms import Expression, simplify_expression
+from .expressions_and_terms import LogicalExpression, simplify_expression
 
-class Implication(Expression):
+class Implication(LogicalExpression):
     def __init__(self, left, right):
         self.left = left
         self.right = right
@@ -49,18 +49,11 @@ class Implication(Expression):
         return Implication(left_simplified, right_simplified)
 
     def match(self, other):
-        if isinstance(other, Implication):
-            left_match = self.left.match(other.left)
-            right_match = self.right.match(other.right)
-            print(f"Implication match: self: {self}, other: {other}, left_match: {left_match}, right_match: {right_match}")
-            if left_match is not None and right_match is not None:
-                bindings = {}
-                bindings.update(left_match)
-                bindings.update(right_match)
-                return bindings
+        if self == other:
+            return {}
         return None
 
-class And(Expression):
+class And(LogicalExpression):
     def __init__(self, left, right):
         self.left = left
         self.right = right
@@ -137,13 +130,13 @@ class And(Expression):
             new_bindings.update(right_match)
             return new_bindings
 
-        if isinstance(other, Expression):
+        if isinstance(other, LogicalExpression):
             return bindings
 
         return None
 
 
-class Or(Expression):
+class Or(LogicalExpression):
     def __init__(self, left, right):
         self.left = left
         self.right = right
@@ -176,7 +169,7 @@ class Or(Expression):
                     return right_match
         return None
 
-class Not(Expression):
+class Not(LogicalExpression):
     def __init__(self, expr):
         super().__init__()
         self.expr = expr

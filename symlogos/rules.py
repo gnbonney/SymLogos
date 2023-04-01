@@ -1,4 +1,4 @@
-from .expressions_and_terms import Expression
+from .expressions_and_terms import LogicalExpression
 class Rule:
     def __init__(self, name, premises, conclusion):
         self.name = name

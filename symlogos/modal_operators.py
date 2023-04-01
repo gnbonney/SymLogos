@@ -1,6 +1,6 @@
-from .expressions_and_terms import Expression, simplify_expression
+from .expressions_and_terms import LogicalExpression, simplify_expression
 
-class Necessity(Expression):
+class Necessity(LogicalExpression):
     def __init__(self, expr):
         self.expr = expr
 
@@ -46,7 +46,7 @@ class Necessity(Expression):
 
 
 
-class Possibility(Expression):
+class Possibility(LogicalExpression):
     def __init__(self, expr):
         self.expr = expr
 

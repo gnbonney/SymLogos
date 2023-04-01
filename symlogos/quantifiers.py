@@ -1,6 +1,6 @@
-from .expressions_and_terms import Expression
+from .expressions_and_terms import LogicalExpression
 
-class Forall(Expression):
+class Forall(LogicalExpression):
     def __init__(self, variable, predicate):
         self.variable = variable
         self.predicate = predicate
@@ -20,11 +20,10 @@ class Forall(Expression):
     def __repr__(self):
         return f"Forall({repr(self.variable)}, {repr(self.predicate)})"
     
-    def substitute(self, variable, replacement):
-        mapping = {variable: replacement}
+    def substitute(self, mapping):
+        new_bound_variable = mapping.get(self.variable, self.variable)
         new_predicate = self.predicate.substitute(mapping)
-        new_variable = replacement if self.variable == variable else self.variable
-        return Forall(new_variable, new_predicate)
+        return Forall(new_bound_variable, new_predicate)
 
     def substitute_all(self, substitutions):
         # Prevent the bound variable from being substituted
@@ -50,7 +49,7 @@ class Forall(Expression):
                 return bindings
         return None
 
-class Exists(Expression):
+class Exists(LogicalExpression):
     def __init__(self, variable, predicate):
         self.variable = variable
         self.predicate = predicate

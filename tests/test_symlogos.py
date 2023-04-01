@@ -1,8 +1,8 @@
-from sympy import symbols
+from sympy import symbols, Symbol
 from symlogos.axiom_set import AxiomSet
 from symlogos.connectives import Implication, And, Not
-from symlogos.expressions_and_terms import Expression, Term
-from symlogos.functions_and_predicates import Predicate, HigherOrderFunction
+from symlogos.expressions_and_terms import LogicalExpression, Term
+from symlogos.functions_and_predicates import Predicate, HigherOrderFunction, FunctionApplication
 from symlogos.modal_operators import Possibility, Necessity
 from symlogos.proposition import Proposition
 from symlogos.quantifiers import Forall, Exists
@@ -61,7 +61,7 @@ def test_forall_substitution():
     c = Term("c")
     P = Predicate("P", x)
     forall_px = Forall(x, P)
-    result = forall_px.substitute(x, c)
+    result = forall_px.substitute({x: c})
     assert result == Forall(c, Predicate("P", c))
 
 def test_exists():
@@ -106,8 +106,10 @@ def test_substitute():
 
 def test_evaluate():
     p = Proposition("p")
-    assignment = {"p": True}
+    q = Proposition("q")
+    assignment = {p: True, q: False}
     assert p.evaluate(assignment) == True
+    assert q.evaluate(assignment) == False
 
 
 def test_simplify():
@@ -187,8 +189,8 @@ def test_repr():
 
 def test_term_creation():
     t = Term('x')
-    assert isinstance(t, Expression)
-    assert t.name == 'x'
+    assert isinstance(t, Term)
+    assert t.symbol == Symbol('x')
 
 def test_term_str():
     t = Term('x')
@@ -199,36 +201,18 @@ def test_term_repr():
     assert repr(t) == "Term('x')"
 
 def test_rule_creation():
-    class TestExpr(Term):
-        def __init__(self, name):
-            super().__init__(name)
-            self.name = name
-
-        def __str__(self):
-            return self.name
-
-        def match(self, other):
-            if isinstance(other, TestExpr):
-                return {Term('x'): self}
-            return {}
-
-        def substitute(self, variable, replacement):
-            if self == variable:
-                return replacement
-            else:
-                return self
-
-        def __repr__(self):
-            return f"Term('{self.name}')"
-
-    premise1 = TestExpr('A')
-    premise2 = TestExpr('B')
-    conclusion = TestExpr('C')
-    rule = Rule('R1', [premise1, premise2], conclusion)
-
-    assert str(rule) == "R1: A, B ⊢ C"
-    assert repr(rule) == "Rule('R1', [Term('A'), Term('B')], Term('C'))"
-
+    A = Term('A')
+    B = Term('B')
+    f = FunctionApplication('f', A)
+    g = FunctionApplication('g', B)
+    
+    rule = Rule('example_rule', [f], g)
+    
+    assert isinstance(rule, Rule)
+    assert rule.name == 'example_rule'
+    assert rule.premises == [f]
+    assert rule.conclusion == g
+    assert str(rule) == "example_rule: f(A) ⊢ g(B)"
 
 def test_rule_str():
     premise1 = Term('x')

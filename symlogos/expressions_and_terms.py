@@ -1,67 +1,53 @@
-from abc import ABC, abstractmethod
+import abc
+import sympy
 
-def simplify_expression(expr):
-    if isinstance(expr, Expression):
-        return expr.simplify()
-    return expr
+class CombinedMeta(sympy.Basic.__class__, abc.ABCMeta):
+    pass
 
-class Expression(ABC):
-    def substitute(self, substitution):
-        return self
-
-    def evaluate(self, assignment):
-        return self
-
-    def simplify(self):
-        return self
-
-    @abstractmethod
+class LogicalExpression(sympy.Basic, metaclass=CombinedMeta):
+    @abc.abstractmethod
     def __eq__(self, other):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def __hash__(self):
         pass
-    
-    @abstractmethod
+
+    @abc.abstractmethod
     def match(self, other):
         pass
 
+    def substitute(self, mapping):
+        raise NotImplementedError("Substitution not implemented for this class")
+
     def substitute_all(self, substitutions):
-        new_attributes = {}
-        for attr, value in self.__dict__.items():
-            if isinstance(value, Expression):
-                new_attributes[attr] = value.substitute_all(substitutions)
-            elif isinstance(value, Term) and value in substitutions:
-                new_attributes[attr] = substitutions[value]
-            elif isinstance(value, tuple):  
-                new_attributes[attr] = tuple(v.substitute_all(substitutions) if isinstance(v, Expression) else substitutions.get(v, v) for v in value)
-            else:
-                new_attributes[attr] = value
-        result = self.__class__(*new_attributes.values())
-        return result
+        return self.subs(substitutions)
 
     def substitute_all_terms(self, term_replacement_dict):
-        return self
+        return self.subs(term_replacement_dict)
 
+    def evaluate(self, assignment):
+        return self.subs(assignment).evalf()
 
-class Term(Expression):
-    def __init__(self, name):
-        self.name = name
+class Term(sympy.Basic):
+    def __new__(cls, name):
+        obj = super().__new__(cls)
+        obj.symbol = sympy.Symbol(name)
+        return obj
 
     def __eq__(self, other):
         if isinstance(other, Term):
-            return self.name == other.name
+            return self.symbol == other.symbol
         return False
 
     def __hash__(self):
-        return hash((type(self), self.name))
+        return hash((type(self), self.symbol))
 
     def __str__(self):
-        return self.name
+        return str(self.symbol)
 
     def __repr__(self):
-        return f"Term('{self.name}')"
+        return f"Term('{self.symbol}')"
 
     def substitute(self, mapping):
         if self in mapping:
@@ -69,14 +55,14 @@ class Term(Expression):
         return self
 
     def evaluate(self, assignment):
-        if self.name in assignment:
-            return assignment[self.name]
+        if self.symbol in assignment:
+            return assignment[self.symbol]
         else:
-            raise ValueError(f"Assignment for term '{self.name}' not found.")
+            raise ValueError(f"Assignment for term '{self.symbol}' not found.")
 
     def match(self, other):
         if isinstance(other, Term):
-            if self.name == other.name:
+            if self.symbol == other.symbol:
                 print(f"Match successful: self: {self}, other: {other}")
                 return {}
             elif self.is_variable() or other.is_variable():
@@ -90,4 +76,9 @@ class Term(Expression):
             return None
 
     def is_variable(self):
-        return self.name.islower()
+        return self.symbol.name.islower()
+    
+def simplify_expression(expr):
+    if isinstance(expr, LogicalExpression):
+        return expr.simplify()
+    return expr

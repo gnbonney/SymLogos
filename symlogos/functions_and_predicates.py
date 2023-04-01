@@ -1,11 +1,14 @@
-from .expressions_and_terms import Expression
+import sympy
+from .expressions_and_terms import LogicalExpression
 
 # higher-order predicates
 
-class Predicate(Expression):
-    def __init__(self, symbol, *terms):
-        self.symbol = symbol
-        self.terms = terms
+class Predicate(LogicalExpression):
+    def __new__(cls, name, *terms):
+        obj = super().__new__(cls)
+        obj.symbol = sympy.Symbol(str(name))  # Convert name to string before creating a sympy.Symbol
+        obj.terms = terms
+        return obj
 
     def __eq__(self, other):
         if not isinstance(other, Predicate):
@@ -22,15 +25,12 @@ class Predicate(Expression):
         return f"Predicate('{self.symbol}', {', '.join(map(repr, self.terms))})"
     
     def substitute(self, mapping):
-        new_args = [arg.substitute(mapping) if isinstance(arg, Expression) else arg for arg in self.terms]
+        new_args = [mapping.get(term, term) for term in self.terms]
         return Predicate(self.symbol, *new_args)
 
     def substitute_all_terms(self, term_replacement_dict):
-        print(f"Original predicate: {self}")
         new_terms = [term_replacement_dict.get(term, term) for term in self.terms]
-        print(f"New terms: {new_terms}")
-        new_predicate = Predicate(self.symbol, *new_terms)  # Change this line
-        print(f"New predicate: {new_predicate}")
+        new_predicate = Predicate(self.symbol, *new_terms)
         return new_predicate
     
     def evaluate(self, valuation=None):
@@ -42,7 +42,7 @@ class Predicate(Expression):
             if isinstance(value, bool):
                 return value
 
-        new_args = [arg.evaluate(valuation) if isinstance(arg, Expression) else arg for arg in self.terms]
+        new_args = [arg.evaluate(valuation) if isinstance(arg, LogicalExpression) else arg for arg in self.terms]
         return Predicate(self.symbol, *new_args)
     
     def match(self, other):
@@ -67,20 +67,36 @@ class Predicate(Expression):
 
 # high order functions
 
-class HigherOrderFunction(Expression):
-    def __init__(self, name, arg_function=None, return_function=None, *args):
-        self.name = name
-        self.arg_function = arg_function
-        self.return_function = return_function
-        self.args = args
+from sympy import Basic, Symbol
 
-    def __eq__(self, other):
-        if isinstance(other, HigherOrderFunction):
-            return self.name == other.name
-        return False
+class HigherOrderFunction(Basic):
+    def __new__(cls, name, arg_function=None, return_function=None, *args):
+        obj = super().__new__(cls)
+        obj._name = Symbol(name)
+        obj._arg_function = arg_function
+        obj._return_function = return_function
+        obj._args = args
+        return obj
 
-    def __call__(self, *args):
-        return Predicate(self.name, *args)
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def arg_function(self):
+        return self._arg_function
+
+    @arg_function.setter
+    def arg_function(self, value):
+        self._arg_function = value
+
+    @property
+    def return_function(self):
+        return self._return_function
+
+    @return_function.setter
+    def return_function(self, value):
+        self._return_function = value
 
     def __str__(self):
         arg_str = f"({', '.join(map(str, self.args))})" if self.args else ""
@@ -124,4 +140,49 @@ class HigherOrderFunction(Expression):
         else:
             print(f"Matching failed as expr is not a HigherOrderFunction or name mismatch: self: {self}, expr: {expr}")
             return None
+
+class FunctionApplication(LogicalExpression):
+    def __init__(self, function_symbol, *args):
+        self.function_symbol = function_symbol
+        self.arguments = args
+
+    def __str__(self):
+        args_str = ', '.join(str(arg) for arg in self.arguments)
+        return f"{self.function_symbol}({args_str})"
+
+    def __eq__(self, other):
+        if not isinstance(other, FunctionApplication):
+            return False
+        return self.function_symbol == other.function_symbol and self.arguments == other.arguments
+    
+    def substitute(self, mapping):
+        new_args = tuple(arg.substitute(mapping) for arg in self.arguments)
+        return FunctionApplication(self.function_symbol, *new_args)
+
+    def variables(self):
+        variables = set()
+        for arg in self.arguments:
+            variables |= arg.variables()
+        return variables
+
+    def match(self, other):
+        if isinstance(other, FunctionApplication):
+            if self.function_symbol != other.function_symbol or len(self.arguments) != len(other.arguments):
+                return None
+
+            match = {}
+            for arg_self, arg_other in zip(self.arguments, other.arguments):
+                partial_match = arg_self.match(arg_other)
+                if partial_match is None:
+                    return None
+
+                for key, value in partial_match.items():
+                    if key in match and match[key] != value:
+                        return None
+                    match[key] = value
+
+            return match
+
+        return None
+
 

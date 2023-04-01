@@ -1,9 +1,9 @@
-from symlogos.functions_and_predicates import Proposition, Predicate, Forall, Exists, HigherOrderFunction, Implication
+from symlogos.functions_and_predicates import Proposition, Term, FunctionApplication, Predicate, Forall, Exists, Implication
 
 def demonstrate_propositions():
     print("=== Propositions ===")
     p = Proposition("p")
-    not_p = p.neg()
+    not_p = ~p
     box_p = p.box()
     diamond_p = p.diamond()
 
@@ -15,10 +15,12 @@ def demonstrate_propositions():
 
 def demonstrate_predicates_quantifiers():
     print("=== Predicates and Quantifiers ===")
-    Px = Predicate("P", "x")
-    Py = Predicate("P", "y")
-    forall_px = Forall("x", Px)
-    exists_py = Exists("y", Py)
+    x = Term("x")
+    y = Term("y")
+    Px = Predicate("P", x)
+    Py = Predicate("P", y)
+    forall_px = Forall(x, Px)
+    exists_py = Exists(y, Py)
 
     print("Px:", Px)
     print("Py:", Py)
@@ -26,15 +28,15 @@ def demonstrate_predicates_quantifiers():
     print("∃yPy:", exists_py)
     print()
 
-def demonstrate_higher_order_functions():
-    print("=== Higher-Order Functions ===")
-    F = HigherOrderFunction("F")
-    p = Proposition("p")
-    f_of_p = F(p)
-    box_f_of_p = F(p).box()
+def demonstrate_function_application():
+    print("=== Function Application ===")
+    x = Term("x")
+    y = Term("y")
+    f = FunctionApplication("f", x)
+    g = FunctionApplication("g", y)
 
-    print("F(p):", f_of_p)
-    print("□F(p):", box_f_of_p)
+    print("f(x):", f)
+    print("g(y):", g)
     print()
 
 def demonstrate_implications():
@@ -42,7 +44,7 @@ def demonstrate_implications():
     p = Proposition("p")
     q = Proposition("q")
     p_implies_q = Implication(p, q)
-    not_p_implies_not_q = Implication(p.neg(), q.neg())
+    not_p_implies_not_q = Implication(~p, ~q)
 
     print("p -> q:", p_implies_q)
     print("¬p -> ¬q:", not_p_implies_not_q)
@@ -51,5 +53,5 @@ def demonstrate_implications():
 if __name__ == "__main__":
     demonstrate_propositions()
     demonstrate_predicates_quantifiers()
-    demonstrate_higher_order_functions()
+    demonstrate_function_application()
     demonstrate_implications()
