@@ -65,6 +65,12 @@ class Predicate(LogicalExpression):
             print(f"Matching failed as other is not a Predicate: self: {self}, other: {other}")
             return None
 
+    def is_atomic(self):
+        return True
+            
+    def to_nnf(self):
+        return self
+
 # high order functions
 
 from sympy import Basic, Symbol

@@ -62,3 +62,5 @@ class Proposition(LogicalExpression):
     def substitute_all_terms(self, term_replacement_dict):
         return self.subs(term_replacement_dict)
 
+    def is_atomic(self):
+        return True

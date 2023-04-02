@@ -1,57 +1,63 @@
 from .expressions_and_terms import LogicalExpression, simplify_expression
 
 class Implication(LogicalExpression):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
+    def __init__(self, antecedent, consequent):
+        self.antecedent = antecedent
+        self.consequent = consequent
 
     def __eq__(self, other):
         if isinstance(other, Implication):
-            return self.left == other.left and self.right == other.right
+            return self.antecedent == other.antecedent and self.consequent == other.consequent
         return False
 
     def __str__(self):
-        left_str = str(self.left)
-        right_str = str(self.right)
-        return f"({left_str} → {right_str})"
+        antecedent_str = str(self.antecedent)
+        consequent_str = str(self.consequent)
+        return f"({antecedent_str} → {consequent_str})"
 
     def __repr__(self):
-        return f"Implication({repr(self.left)}, {repr(self.right)})"
+        return f"Implication({repr(self.antecedent)}, {repr(self.consequent)})"
 
     def substitute(self, variable, replacement):
-        left_substituted = self.left.substitute(variable, replacement)
-        right_substituted = self.right.substitute(variable, replacement)
-        return Implication(left_substituted, right_substituted)
+        antecedent_substituted = self.antecedent.substitute(variable, replacement)
+        consequent_substituted = self.consequent.substitute(variable, replacement)
+        return Implication(antecedent_substituted, consequent_substituted)
 
     def evaluate(self, valuation=None):
         if valuation is None:
             return self
 
-        left_val = self.left.evaluate(valuation)
-        right_val = self.right.evaluate(valuation)
+        antecedent_val = self.antecedent.evaluate(valuation)
+        consequent_val = self.consequent.evaluate(valuation)
 
-        if isinstance(left_val, bool) and isinstance(right_val, bool):
-            return not left_val or right_val
+        if isinstance(antecedent_val, bool) and isinstance(consequent_val, bool):
+            return not antecedent_val or consequent_val
         else:
-            return Implication(left_val, right_val)
+            return Implication(antecedent_val, consequent_val)
 
     def simplify(self):
-        left_simplified = simplify_expression(self.left)
-        right_simplified = simplify_expression(self.right)
+        antecedent_simplified = simplify_expression(self.antecedent)
+        consequent_simplified = simplify_expression(self.consequent)
     
-        if left_simplified == True:
-            return right_simplified
-        if left_simplified == False or right_simplified == True:
+        if antecedent_simplified == True:
+            return consequent_simplified
+        if antecedent_simplified == False or consequent_simplified == True:
             return True
-        if left_simplified == right_simplified:
+        if antecedent_simplified == consequent_simplified:
             return True
     
-        return Implication(left_simplified, right_simplified)
+        return Implication(antecedent_simplified, consequent_simplified)
 
     def match(self, other):
         if self == other:
             return {}
         return None
+
+    def to_nnf(self):
+        negated_antecedent = Not(self.antecedent).to_nnf()
+        consequent_nnf = self.consequent.to_nnf()
+        return Or(negated_antecedent, consequent_nnf)
+
 
 class And(LogicalExpression):
     def __init__(self, left, right):
@@ -135,6 +141,9 @@ class And(LogicalExpression):
 
         return None
 
+    def to_nnf(self):
+        return And(*(arg.to_nnf() for arg in self.args))
+
 
 class Or(LogicalExpression):
     def __init__(self, left, right):
@@ -168,6 +177,9 @@ class Or(LogicalExpression):
                 if right_match is not None:
                     return right_match
         return None
+
+    def to_nnf(self):
+        return Or(*(arg.to_nnf() for arg in self.args))
 
 class Not(LogicalExpression):
     def __init__(self, expr):
@@ -236,3 +248,14 @@ class Not(LogicalExpression):
             result = self.expr.match(other)
             print(f"Match result: {result}")
             return result
+
+    def to_nnf(self):
+        inner = self.expr
+        if inner.is_atomic():
+            return self
+        if isinstance(inner, And):
+            return Or(*(Not(expr).to_nnf() for expr in inner.expr))
+        if isinstance(inner, Or):
+            return And(*(Not(expr).to_nnf() for expr in inner.expr))
+        if isinstance(inner, Not):
+            return inner.expr.to_nnf()

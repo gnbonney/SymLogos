@@ -33,6 +33,11 @@ class Rule:
         print(f"Rule applied: {result}")  # Debug print
         return result
 
+    def to_nnf(self):
+        nnf_premises = [premise.to_nnf() for premise in self.premises]
+        nnf_conclusion = self.conclusion.to_nnf()
+        return Rule(self.name, nnf_premises, nnf_conclusion)
+
 def check_consistency():
     pass
 

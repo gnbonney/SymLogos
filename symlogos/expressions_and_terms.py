@@ -29,6 +29,18 @@ class LogicalExpression(sympy.Basic, metaclass=CombinedMeta):
     def evaluate(self, assignment):
         return self.subs(assignment).evalf()
 
+    def is_atomic(self):
+        return False
+
+    def to_nnf(self):
+        if self.is_atomic():
+            return self
+        else:
+            raise NotImplementedError(f"to_nnf is not implemented for the class {type(self)}")
+
+
+
+
 class Term(sympy.Basic):
     def __new__(cls, name):
         obj = super().__new__(cls)

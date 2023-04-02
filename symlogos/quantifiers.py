@@ -49,6 +49,9 @@ class Forall(LogicalExpression):
                 return bindings
         return None
 
+    def to_nnf(self):
+        return Forall(self.variable, self.predicate.to_nnf())
+
 class Exists(LogicalExpression):
     def __init__(self, variable, predicate):
         self.variable = variable
@@ -85,3 +88,6 @@ class Exists(LogicalExpression):
         else:
             print(f"Matching failed for different types: self: {self}, expression: {expression}")
         return None
+
+    def to_nnf(self):
+        return Exists(self.variable, self.predicate.to_nnf())
