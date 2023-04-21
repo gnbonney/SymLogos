@@ -7,7 +7,7 @@ class Predicate(LogicalExpression):
     def __new__(cls, name, *terms):
         obj = super().__new__(cls)
         obj.symbol = sympy.Symbol(str(name))  # Convert name to string before creating a sympy.Symbol
-        obj.terms = terms
+        obj.terms = tuple(terms[0]) if len(terms) == 1 and isinstance(terms[0], (list, tuple)) else terms
         return obj
 
     def __eq__(self, other):

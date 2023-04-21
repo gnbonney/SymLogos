@@ -39,8 +39,6 @@ class LogicalExpression(sympy.Basic, metaclass=CombinedMeta):
             raise NotImplementedError(f"to_nnf is not implemented for the class {type(self)}")
 
 
-
-
 class Term(sympy.Basic):
     def __new__(cls, name):
         obj = super().__new__(cls)

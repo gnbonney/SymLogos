@@ -5,6 +5,9 @@ class Implication(LogicalExpression):
         self.antecedent = antecedent
         self.consequent = consequent
 
+    def __hash__(self):
+        return hash((type(self), self.antecedent, self.consequent))
+
     def __eq__(self, other):
         if isinstance(other, Implication):
             return self.antecedent == other.antecedent and self.consequent == other.consequent
@@ -63,6 +66,9 @@ class And(LogicalExpression):
     def __init__(self, left, right):
         self.left = left
         self.right = right
+
+    def __hash__(self):
+        return hash((type(self), self.left, self.right))
 
     def __str__(self):
         left_str = str(self.left)
@@ -149,6 +155,9 @@ class Or(LogicalExpression):
     def __init__(self, left, right):
         self.left = left
         self.right = right
+
+    def __hash__(self):
+        return hash((type(self), self.left, self.right))
 
     def __repr__(self):
         return f"({self.left} ∨ {self.right})"

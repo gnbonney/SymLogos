@@ -5,6 +5,9 @@ class Forall(LogicalExpression):
         self.variable = variable
         self.predicate = predicate
 
+    def instantiate(self, term):
+        return self.predicate.substitute({self.variable: term})
+
     def __repr__(self):
         return f"∀{self.variable}: {self.predicate}"
 
