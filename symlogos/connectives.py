@@ -1,19 +1,26 @@
+from __future__ import annotations
 from .expressions_and_terms import LogicalExpression, simplify_expression
+from symlogos.expressions_and_terms import Term
+from typing import Any, Dict, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from symlogos.proposition import Proposition
+    from symlogos.modal_operators import Necessity
 
 class Implication(LogicalExpression):
-    def __init__(self, antecedent, consequent):
+    def __init__(self, antecedent: Union['Proposition', 'Necessity', Term], consequent: Union['Proposition', 'Necessity', Term]) -> None:
         self.antecedent = antecedent
         self.consequent = consequent
 
     def __hash__(self):
         return hash((type(self), self.antecedent, self.consequent))
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Implication") -> bool:
         if isinstance(other, Implication):
             return self.antecedent == other.antecedent and self.consequent == other.consequent
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         antecedent_str = str(self.antecedent)
         consequent_str = str(self.consequent)
         return f"({antecedent_str} → {consequent_str})"
@@ -51,26 +58,26 @@ class Implication(LogicalExpression):
     
         return Implication(antecedent_simplified, consequent_simplified)
 
-    def match(self, other):
+    def match(self, other: "Implication") -> Dict[Any, Any]:
         if self == other:
             return {}
         return None
 
-    def to_nnf(self):
+    def to_nnf(self) -> "Or":
         negated_antecedent = Not(self.antecedent).to_nnf()
         consequent_nnf = self.consequent.to_nnf()
         return Or(negated_antecedent, consequent_nnf)
 
 
 class And(LogicalExpression):
-    def __init__(self, left, right):
+    def __init__(self, left: Any, right: Union[And, Term, Or, 'Proposition', Not]) -> None:
         self.left = left
         self.right = right
 
     def __hash__(self):
         return hash((type(self), self.left, self.right))
 
-    def __str__(self):
+    def __str__(self) -> str:
         left_str = str(self.left)
         right_str = str(self.right)
         return f"({left_str} ∧ {right_str})"
@@ -78,12 +85,12 @@ class And(LogicalExpression):
     def __repr__(self):
         return f"And({repr(self.left)}, {repr(self.right)})"
     
-    def substitute(self, variable, replacement):
+    def substitute(self, variable: 'Proposition', replacement: 'Proposition') -> "And":
         left_substituted = self.left.substitute(variable, replacement)
         right_substituted = self.right.substitute(variable, replacement)
         return And(left_substituted, right_substituted)
 
-    def substitute_all_terms(self, term_replacement_dict):
+    def substitute_all_terms(self, term_replacement_dict: Dict[Any, Any]) -> "And":
         left_substituted = self.left.substitute_all_terms(term_replacement_dict)
         right_substituted = self.right.substitute_all_terms(term_replacement_dict)
         return And(left_substituted, right_substituted)
@@ -100,12 +107,12 @@ class And(LogicalExpression):
         else:
             return And(left_val, right_val)
 
-    def __eq__(self, other):
+    def __eq__(self, other: "And") -> bool:
         if isinstance(other, And):
             return self.left == other.left and self.right == other.right
         return False
         
-    def simplify(self):
+    def simplify(self) -> Union['Proposition', bool, And]:
         left_simplified = simplify_expression(self.left)
         right_simplified = simplify_expression(self.right)
 
@@ -126,7 +133,7 @@ class And(LogicalExpression):
 
         return And(left_simplified, right_simplified)
 
-    def match(self, other, bindings=None):
+    def match(self, other: "And", bindings: None=None) -> Dict[Any, Any]:
         if bindings is None:
             bindings = {}
             
@@ -147,12 +154,12 @@ class And(LogicalExpression):
 
         return None
 
-    def to_nnf(self):
+    def to_nnf(self) -> "And":
         return And(*(arg.to_nnf() for arg in self.args))
 
 
 class Or(LogicalExpression):
-    def __init__(self, left, right):
+    def __init__(self, left: Union['Proposition', And, Or, Not], right: Union['Proposition', Or, Not, And]) -> None:
         self.left = left
         self.right = right
 
@@ -162,7 +169,7 @@ class Or(LogicalExpression):
     def __repr__(self):
         return f"({self.left} ∨ {self.right})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Or") -> bool:
         if not isinstance(other, Or):
             return False
         return self.left == other.left and self.right == other.right
@@ -170,12 +177,12 @@ class Or(LogicalExpression):
     def variables(self):
         return self.left.variables().union(self.right.variables())
 
-    def substitute_all_terms(self, term_replacement_dict):
+    def substitute_all_terms(self, term_replacement_dict: Dict[Any, Any]) -> "Or":
         new_left = self.left.substitute_all_terms(term_replacement_dict)
         new_right = self.right.substitute_all_terms(term_replacement_dict)
         return Or(new_left, new_right)
 
-    def match(self, other, bindings=None):
+    def match(self, other: "Or", bindings: None=None) -> Dict[Any, Any]:
         if bindings is None:
             bindings = {}
 
@@ -187,15 +194,15 @@ class Or(LogicalExpression):
                     return right_match
         return None
 
-    def to_nnf(self):
+    def to_nnf(self) -> "Or":
         return Or(*(arg.to_nnf() for arg in self.args))
 
 class Not(LogicalExpression):
-    def __init__(self, expr):
+    def __init__(self, expr: Union[And, bool, Or, 'Proposition', Not]) -> None:
         super().__init__()
         self.expr = expr
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Not") -> bool:
         if isinstance(other, Not):
             return self.expr == other.expr
         return False
@@ -203,16 +210,16 @@ class Not(LogicalExpression):
     def __hash__(self):
         return hash((type(self), self.expr))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"¬{str(self.expr)}"
 
     def __repr__(self):
         return f"Not({repr(self.expr)})"
     
-    def substitute(self, variable, replacement):
+    def substitute(self, variable: 'Proposition', replacement: 'Proposition') -> "Not":
         return Not(self.expr.substitute(variable, replacement))
 
-    def substitute_all_terms(self, term_replacement_dict):
+    def substitute_all_terms(self, term_replacement_dict: Dict[Any, Any]) -> "Not":
         new_expr = self.expr.substitute_all_terms(term_replacement_dict)  # Change this line
         return Not(new_expr)
     
@@ -227,7 +234,7 @@ class Not(LogicalExpression):
         else:
             return Not(expr_val)
     
-    def simplify(self):
+    def simplify(self) -> Union['Proposition', bool, Not]:
         simplified_inner = simplify_expression(self.expr)
 
         if isinstance(simplified_inner, Not):
@@ -241,12 +248,12 @@ class Not(LogicalExpression):
 
         return Not(simplified_inner)
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Not") -> bool:
         if isinstance(other, Not):
             return self.expr == other.expr
         return False
     
-    def match(self, other):
+    def match(self, other: "Not") -> Dict[Any, Any]:
         if isinstance(other, Not):
             print(f"Matching Not: self: {self}, other: {other}")
             result = self.expr.match(other.expr)
@@ -258,7 +265,7 @@ class Not(LogicalExpression):
             print(f"Match result: {result}")
             return result
 
-    def to_nnf(self):
+    def to_nnf(self) -> "Not":
         inner = self.expr
         if inner.is_atomic():
             return self

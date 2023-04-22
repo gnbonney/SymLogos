@@ -1,19 +1,22 @@
-from .expressions_and_terms import LogicalExpression
+from symlogos.expressions_and_terms import LogicalExpression
+from sympy.core.basic import Basic
+from typing import List
+
 class Rule:
-    def __init__(self, name, premises, conclusion):
+    def __init__(self, name: str, premises: List[Basic], conclusion: Basic) -> None:
         self.name = name
         self.premises = premises
         self.conclusion = conclusion
 
-    def __str__(self):
+    def __str__(self) -> str:
         premises_str = ", ".join(map(str, self.premises))
         return f"{self.name}: {premises_str} ⊢ {self.conclusion}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         premises_repr = ", ".join(map(repr, self.premises))
         return f"Rule('{self.name}', [{premises_repr}], {repr(self.conclusion)})"
 
-    def apply(self, *args):
+    def apply(self, *args) -> LogicalExpression:
         if len(args) != len(self.premises):
             raise ValueError("Wrong number of arguments")
 
@@ -33,7 +36,7 @@ class Rule:
         print(f"Rule applied: {result}")  # Debug print
         return result
 
-    def to_nnf(self):
+    def to_nnf(self) -> "Rule":
         nnf_premises = [premise.to_nnf() for premise in self.premises]
         nnf_conclusion = self.conclusion.to_nnf()
         return Rule(self.name, nnf_premises, nnf_conclusion)

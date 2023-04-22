@@ -1,16 +1,17 @@
+from __future__ import annotations
 import sympy
 from .expressions_and_terms import LogicalExpression
 
 # higher-order predicates
 
 class Predicate(LogicalExpression):
-    def __new__(cls, name, *terms):
+    def __new__(cls: Type[Predicate], name: Union[    sympy.core.symbol.Symbol, str], *terms) -> "Predicate":
         obj = super().__new__(cls)
         obj.symbol = sympy.Symbol(str(name))  # Convert name to string before creating a sympy.Symbol
         obj.terms = tuple(terms[0]) if len(terms) == 1 and isinstance(terms[0], (list, tuple)) else terms
         return obj
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Predicate") -> bool:
         if not isinstance(other, Predicate):
             return False
         return self.symbol == other.symbol and self.terms == other.terms
@@ -18,17 +19,17 @@ class Predicate(LogicalExpression):
     def __hash__(self):
         return hash((type(self), self.symbol, self.terms))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.symbol}({', '.join(map(str, self.terms))})"
 
     def __repr__(self):
         return f"Predicate('{self.symbol}', {', '.join(map(repr, self.terms))})"
     
-    def substitute(self, mapping):
+    def substitute(self, mapping: Dict[Term, Term]) -> "Predicate":
         new_args = [mapping.get(term, term) for term in self.terms]
         return Predicate(self.symbol, *new_args)
 
-    def substitute_all_terms(self, term_replacement_dict):
+    def substitute_all_terms(self, term_replacement_dict: Dict[Term, Term]) -> "Predicate":
         new_terms = [term_replacement_dict.get(term, term) for term in self.terms]
         new_predicate = Predicate(self.symbol, *new_terms)
         return new_predicate
@@ -45,7 +46,7 @@ class Predicate(LogicalExpression):
         new_args = [arg.evaluate(valuation) if isinstance(arg, LogicalExpression) else arg for arg in self.terms]
         return Predicate(self.symbol, *new_args)
     
-    def match(self, other):
+    def match(self, other: "Predicate") -> Dict[Term, Term]:
         if isinstance(other, Predicate):
             if self.symbol == other.symbol and len(self.terms) == len(other.terms):
                 bindings = {}
@@ -68,15 +69,18 @@ class Predicate(LogicalExpression):
     def is_atomic(self):
         return True
             
-    def to_nnf(self):
+    def to_nnf(self) -> "Predicate":
         return self
 
 # high order functions
 
 from sympy import Basic, Symbol
+import sympy.core.symbol
+from symlogos.expressions_and_terms import Term
+from typing import Dict, Optional, Type, Union
 
 class HigherOrderFunction(Basic):
-    def __new__(cls, name, arg_function=None, return_function=None, *args):
+    def __new__(cls: Type[HigherOrderFunction], name: str, arg_function: Optional[HigherOrderFunction]=None, return_function: Optional[Union[Predicate, HigherOrderFunction]]=None, *args) -> "HigherOrderFunction":
         obj = super().__new__(cls)
         obj._name = Symbol(name)
         obj._arg_function = arg_function
@@ -85,7 +89,7 @@ class HigherOrderFunction(Basic):
         return obj
 
     @property
-    def name(self):
+    def name(self) ->     sympy.core.symbol.Symbol:
         return self._name
 
     @property
@@ -104,7 +108,7 @@ class HigherOrderFunction(Basic):
     def return_function(self, value):
         self._return_function = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         arg_str = f"({', '.join(map(str, self.args))})" if self.args else ""
         if self.arg_function and self.return_function:
             return f"{self.name}({self.arg_function}) -> {self.return_function}{arg_str}"
@@ -115,7 +119,7 @@ class HigherOrderFunction(Basic):
         else:
             return f"{self.name}{arg_str}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"HigherOrderFunction('{self.name}', {repr(self.arg_function)}, {repr(self.return_function)})"
     
     def match(self, expr):
@@ -148,15 +152,15 @@ class HigherOrderFunction(Basic):
             return None
 
 class FunctionApplication(LogicalExpression):
-    def __init__(self, function_symbol, *args):
+    def __init__(self, function_symbol: Union[HigherOrderFunction, str], *args) -> None:
         self.function_symbol = function_symbol
         self.arguments = args
 
-    def __str__(self):
+    def __str__(self) -> str:
         args_str = ', '.join(str(arg) for arg in self.arguments)
         return f"{self.function_symbol}({args_str})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: "FunctionApplication") -> bool:
         if not isinstance(other, FunctionApplication):
             return False
         return self.function_symbol == other.function_symbol and self.arguments == other.arguments

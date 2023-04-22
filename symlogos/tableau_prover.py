@@ -1,12 +1,14 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Optional, List
 from .signed_formula import SignedFormula
 from .connectives import And, Or, Not, Implication
 from .quantifiers import Forall, Exists
 from .expressions_and_terms import Term
+from symlogos.signed_formula import SignedFormula
 
 class TableauNode:
-    def __init__(self, signed_formula, parent=None):
+    def __init__(self, signed_formula: SignedFormula, parent: Optional[TableauNode]=None) -> None:
         self.signed_formula = signed_formula
         self.parent = parent
         self.children = []
@@ -22,7 +24,7 @@ class TableauNode:
         else:
             return 0
 
-    def get_next_fresh_variable_index(self):
+    def get_next_fresh_variable_index(self) -> int:
         if self.parent:
             return self.parent.get_next_fresh_variable_index() + 1
         else:
@@ -99,7 +101,7 @@ class TableauProver:
 
 class TableauRule(ABC):
 
-    def __init__(self, signed_formula):
+    def __init__(self, signed_formula: SignedFormula) -> None:
         self.signed_formula = signed_formula
 
     @abstractmethod
@@ -118,17 +120,17 @@ class TableauRule(ABC):
         pass
 
 class AlphaRule(TableauRule):
-    def __init__(self, signed_formula):
+    def __init__(self, signed_formula: SignedFormula) -> None:
         super().__init__(signed_formula)
 
     def __hash__(self):
         return hash((type(self), self.signed_formula))
 
-    def is_applicable(self):
+    def is_applicable(self) -> bool:
         formula = self.signed_formula.formula
         return isinstance(formula, And) or isinstance(formula, Or)
 
-    def apply(self):
+    def apply(self) -> List[SignedFormula]:
         if not self.is_applicable():
             raise ValueError("Alpha rule is not applicable to the given formula")
 
@@ -149,17 +151,17 @@ class AlphaRule(TableauRule):
 
 
 class BetaRule(TableauRule):
-    def __init__(self, signed_formula):
+    def __init__(self, signed_formula: SignedFormula) -> None:
         super().__init__(signed_formula)
 
     def __hash__(self):
         return hash((type(self), self.signed_formula))
 
-    def is_applicable(self):
+    def is_applicable(self) -> bool:
         formula = self.signed_formula.formula
         return isinstance(formula, Implication)
 
-    def apply(self):
+    def apply(self) -> List[SignedFormula]:
         if not self.is_applicable():
             raise ValueError("Beta rule is not applicable to the given formula")
 
@@ -176,16 +178,16 @@ class BetaRule(TableauRule):
 
 
 class GammaRule(TableauRule):
-    def __init__(self, signed_formula):
+    def __init__(self, signed_formula: SignedFormula) -> None:
         super().__init__(signed_formula)
 
     def __hash__(self):
         return hash((type(self), self.signed_formula))
 
-    def is_applicable(self):
+    def is_applicable(self) -> bool:
         return isinstance(self.signed_formula.formula, Exists) and self.signed_formula.sign == "F"
 
-    def apply(self, node):
+    def apply(self, node: TableauNode) -> List[TableauNode]:
         quantifier_formula = self.signed_formula.formula
         if not self.is_applicable():
             raise ValueError("GammaRule can only be applied to negated Exists quantifiers")
@@ -198,7 +200,7 @@ class GammaRule(TableauRule):
 
 
 class DeltaRule(TableauRule):
-    def __init__(self, signed_formula):
+    def __init__(self, signed_formula: SignedFormula) -> None:
         super().__init__(signed_formula)
 
     def __hash__(self):
@@ -207,7 +209,7 @@ class DeltaRule(TableauRule):
     def is_applicable(self):
         return isinstance(self.signed_formula.formula, Forall)
 
-    def apply(self, node):
+    def apply(self, node: TableauNode) -> List[TableauNode]:
         quantifier_formula = self.signed_formula.formula
         if not (isinstance(quantifier_formula, Forall) and self.signed_formula.sign == "F"):
             raise ValueError("DeltaRule can only be applied to negated Forall quantifiers")
