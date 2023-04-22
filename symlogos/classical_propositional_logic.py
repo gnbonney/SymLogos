@@ -1,6 +1,5 @@
 from .connectives import Implication, And, Or, Not
 from .proposition import Proposition
-from .rules import Rule
 from symlogos.rules import Rule
 
 class ClassicalPropositionalLogic:

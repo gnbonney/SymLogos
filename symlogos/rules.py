@@ -1,6 +1,9 @@
+from abc import ABC, abstractmethod
 from symlogos.expressions_and_terms import LogicalExpression
 from sympy.core.basic import Basic
 from typing import List
+
+from symlogos.signed_formula import SignedFormula
 
 class Rule:
     def __init__(self, name: str, premises: List[Basic], conclusion: Basic) -> None:
@@ -46,3 +49,23 @@ def check_consistency():
 
 def check_validity():
     pass
+
+class TableauRule(ABC):
+
+    def __init__(self, signed_formula: SignedFormula) -> None:
+        self.signed_formula = signed_formula
+
+    @abstractmethod
+    def is_applicable(self):
+        """
+        Check if the rule is applicable to the signed_formula.
+        """
+        pass
+
+    @abstractmethod
+    def apply(self):
+        """
+        Apply the rule to the signed_formula and return a list of branches,
+        where each branch is a list of SignedFormulas.
+        """
+        pass

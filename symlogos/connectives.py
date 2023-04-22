@@ -12,6 +12,14 @@ class Implication(LogicalExpression):
         self.antecedent = antecedent
         self.consequent = consequent
 
+    @property
+    def left(self):
+        return self.antecedent
+
+    @property
+    def right(self):
+        return self.consequent
+
     def __hash__(self):
         return hash((type(self), self.antecedent, self.consequent))
 

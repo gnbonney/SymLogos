@@ -2,9 +2,11 @@ import pytest
 from symlogos.expressions_and_terms import Term
 from symlogos.connectives import And, Or, Implication
 from symlogos.functions_and_predicates import Predicate
+from symlogos.modal_operators import Necessity
 from symlogos.quantifiers import Forall, Exists
 from symlogos.signed_formula import SignedFormula
-from symlogos.tableau_prover import TableauProver, TableauNode, AlphaRule, BetaRule, GammaRule, DeltaRule
+from symlogos.tableau_prover import TableauProver, TableauNode
+from symlogos.first_order_rules import AlphaRule, BetaRule, GammaRule, DeltaRule
 from symlogos.proposition import Proposition
 
 
@@ -67,52 +69,68 @@ def test_delta_rule():
     assert node.children[0].signed_formula == SignedFormula("T", Predicate("P", [Term("v_0")]))
 
 # TODO: fix this test
-#def test_tableau_prover():
-#    A = Proposition("A")
-#    B = Proposition("B")
-#    C = Proposition("C")
-#
-#    # Example: A -> (B -> A)
-#    premises = []
-#    conclusion = Implication(A, Implication(B, A))
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
-#
-#    # Example: (A -> B), A |- B
-#    premises = [Implication(A, B), A]
-#    conclusion = B
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
-#
-#    # Example: (A -> B), (B -> C), A |- C
-#    premises = [Implication(A, B), Implication(B, C), A]
-#    conclusion = C
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
-#
-#    # Example: A -> (B -> A)
-#    premises = []
-#    conclusion = Implication(A, Implication(B, A))
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
-#
-#    # Example: A, (A -> B), (B -> C) |- C
-#    premises = [A, Implication(A, B), Implication(B, C)]
-#    conclusion = C
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
-#
-#    # Example: (A and B) -> (B and A)
-#    premises = []
-#    conclusion = Implication(And(A, B), And(B, A))
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
-#
-#    # Example: (A or B) -> (B or A)
-#    premises = []
-#    conclusion = Implication(Or(A, B), Or(B, A))
-#    prover = TableauProver()
-#    assert prover.is_sound(premises, conclusion)
+def test_tableau_prover():
+    A = Proposition("A")
+    B = Proposition("B")
+    C = Proposition("C")
+
+    # Example: A -> (B -> A)
+    premises = []
+    conclusion = Implication(A, Implication(B, A))
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: (A -> B), A |- B
+    premises = [Implication(A, B), A]
+    conclusion = B
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: (A -> B), (B -> C), A |- C
+    premises = [Implication(A, B), Implication(B, C), A]
+    conclusion = C
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: A -> (B -> A)
+    premises = []
+    conclusion = Implication(A, Implication(B, A))
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: A, (A -> B), (B -> C) |- C
+    premises = [A, Implication(A, B), Implication(B, C)]
+    conclusion = C
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: (A and B) -> (B and A)
+    premises = []
+    conclusion = Implication(And(A, B), And(B, A))
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: (A or B) -> (B or A)
+    premises = []
+    conclusion = Implication(Or(A, B), Or(B, A))
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+def test_modal_tableau_prover():
+    A = Proposition("A")
+    B = Proposition("B")
+
+    # Example: □A -> A
+    premises = [Implication(Necessity(A), A)]
+    conclusion = Implication(Necessity(A), A)
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
+
+    # Example: (□A ∧ □B) -> □(A ∧ B)
+    premises = [Implication(And(Necessity(A), Necessity(B)), Necessity(And(A, B)))]
+    conclusion = Implication(And(Necessity(A), Necessity(B)), Necessity(And(A, B)))
+    prover = TableauProver()
+    assert prover.is_sound(premises, conclusion)
 
 def is_tableau_structure_correct(tableau, expected_structure):
     def _compare_nodes(node, expected_node):
