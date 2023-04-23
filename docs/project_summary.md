@@ -102,18 +102,6 @@
 
 - `apply(self: unknown) -> List[SignedFormula]`
 
-### BetaRule
-
-#### Methods:
-
-- `__init__(self: unknown, signed_formula: SignedFormula) -> None`
-
-- `__hash__(self: unknown) -> unknown`
-
-- `is_applicable(self: unknown) -> bool`
-
-- `apply(self: unknown) -> List[SignedFormula]`
-
 ### GammaRule
 
 #### Methods:
@@ -224,6 +212,8 @@
 
 - `apply(self: unknown) -> list`
 
+- `is_applicable(self: unknown) -> bool`
+
 ### ModalBoxFRule
 
 #### Methods:
@@ -231,6 +221,8 @@
 - `__init__(self: unknown, signed_formula: SignedFormula) -> None`
 
 - `apply(self: unknown) -> list`
+
+- `is_applicable(self: unknown) -> bool`
 
 ### ModalDiamondTRule
 
@@ -240,6 +232,8 @@
 
 - `apply(self: unknown) -> list`
 
+- `is_applicable(self: unknown) -> bool`
+
 ### ModalDiamondFRule
 
 #### Methods:
@@ -247,6 +241,8 @@
 - `__init__(self: unknown, signed_formula: SignedFormula) -> None`
 
 - `apply(self: unknown) -> list`
+
+- `is_applicable(self: unknown) -> bool`
 
 ---
 
