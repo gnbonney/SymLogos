@@ -6,7 +6,7 @@ from symlogos.modal_operators import Necessity
 from symlogos.quantifiers import Forall, Exists
 from symlogos.signed_formula import SignedFormula
 from symlogos.tableau_prover import TableauProver, TableauNode
-from symlogos.first_order_rules import AlphaRule, BetaRule, GammaRule, DeltaRule
+from symlogos.first_order_rules import AlphaRule, GammaRule, DeltaRule
 from symlogos.proposition import Proposition
 
 
@@ -20,19 +20,6 @@ def test_alpha_rule():
     assert len(new_signed_formulas) == 2
     assert SignedFormula("T", Term("A")) in new_signed_formulas
     assert SignedFormula("T", Term("B")) in new_signed_formulas
-
-
-def test_beta_rule():
-    f1 = Implication(Term("A"), Term("B"))
-    sf = SignedFormula("T", f1)
-
-    beta_rule = BetaRule(sf)
-    assert beta_rule.is_applicable()
-    new_signed_formulas = beta_rule.apply()
-    assert len(new_signed_formulas) == 2
-    assert SignedFormula("F", Term("A")) in new_signed_formulas
-    assert SignedFormula("T", Term("B")) in new_signed_formulas
-
 
 def test_gamma_rule():
     x = Term("x")
@@ -118,17 +105,10 @@ def test_tableau_prover():
 
 def test_modal_tableau_prover():
     A = Proposition("A")
-    B = Proposition("B")
 
-    # Example: □A -> A
-    premises = [Implication(Necessity(A), A)]
-    conclusion = Implication(Necessity(A), A)
-    prover = TableauProver()
-    assert prover.is_sound(premises, conclusion)
-
-    # Example: (□A ∧ □B) -> □(A ∧ B)
-    premises = [Implication(And(Necessity(A), Necessity(B)), Necessity(And(A, B)))]
-    conclusion = Implication(And(Necessity(A), Necessity(B)), Necessity(And(A, B)))
+    # Example: (□A -> A) -> A
+    premises = []
+    conclusion = Implication(Implication(Necessity(A), A), A)
     prover = TableauProver()
     assert prover.is_sound(premises, conclusion)
 

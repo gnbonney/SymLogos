@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import Optional
 
-from symlogos.first_order_rules import AlphaRule, BetaRule, DeltaRule, GammaRule
+from symlogos.first_order_rules import AlphaRule, DeltaRule, GammaRule
 from symlogos.modal_operators import Necessity, Possibility
+from symlogos.proposition import Proposition
 from symlogos.tableau_node import TableauNode
 from .signed_formula import SignedFormula
 from .connectives import And, Or, Not, Implication
@@ -44,6 +45,9 @@ class TableauProver:
         node = TableauNode(signed_formula)
         self.tableau_formulas.add(node)
 
+        # Debug: Print the current signed formula and depth
+        print(f"Depth: {depth}, Current signed formula: {signed_formula}")
+
         # Check for termination conditions
         if depth >= max_depth:
             # Maximum depth reached; cannot determine if the tableau is closed
@@ -56,7 +60,7 @@ class TableauProver:
         # Apply tableau rules to the signed formula
         formula = signed_formula.formula
         if isinstance(formula, And) or isinstance(formula, Or):
-            rule = AlphaRule(signed_formula) if isinstance(formula, And) else BetaRule(signed_formula)
+            rule = AlphaRule(signed_formula)
             new_signed_formulas = rule.apply()
         elif isinstance(formula, Forall) or isinstance(formula, Exists):
             if signed_formula.sign == "T" and isinstance(formula, Forall) or signed_formula.sign == "F" and isinstance(formula, Exists):
@@ -77,12 +81,31 @@ class TableauProver:
             else:
                 rule = ModalDiamondFRule(signed_formula)
             new_signed_formulas = rule.apply()
+        elif isinstance(formula, Not):
+            # Create a new signed formula with the negated sign and the inner formula
+            new_sign = "T" if signed_formula.sign == "F" else "F"
+            new_signed_formula = SignedFormula(new_sign, formula.expr)  # Use expr attribute here
+            new_signed_formulas = [new_signed_formula]
+        elif isinstance(formula, Implication):
+            if signed_formula.sign == "T":
+                # Convert the implication to disjunction (¬A ∨ B) and apply the corresponding rule
+                new_formula = Or(Not(formula.antecedent), formula.consequent)
+                new_signed_formula = SignedFormula(signed_formula.sign, new_formula)
+                new_signed_formulas = [new_signed_formula]
+            else:
+                # Convert the negated implication to conjunction (A ∧ ¬B) and apply the corresponding rule
+                new_formula = And(formula.antecedent, Not(formula.consequent))
+                new_signed_formula = SignedFormula("T", new_formula)  # Use "T" since we are negating the implication
+                new_signed_formulas = [new_signed_formula]
+        elif isinstance(formula, Proposition):
+            return False  # Atomic propositions cannot be expanded further
         else:
-            raise ValueError("Unsupported formula type")
+            raise ValueError(f"Unsupported formula type: {type(formula).__name__}")
+        
+        # Debug: Print the new signed formulas generated
+        print(f"New signed formulas: {new_signed_formulas}")
 
         results = [self.tableau_expansion(new_signed_formula, depth + 1, max_depth) for new_signed_formula in new_signed_formulas]
-
-        # Return True if at least one branch is open, else False
         return any(results)
 
     def _is_tableau_closed(self, node):

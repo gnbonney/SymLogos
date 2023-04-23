@@ -38,34 +38,6 @@ class AlphaRule(TableauRule):
             else:
                 return [SignedFormula('F', left), SignedFormula('F', right)]
 
-
-class BetaRule(TableauRule):
-    def __init__(self, signed_formula: SignedFormula) -> None:
-        super().__init__(signed_formula)
-
-    def __hash__(self):
-        return hash((type(self), self.signed_formula))
-
-    def is_applicable(self) -> bool:
-        formula = self.signed_formula.formula
-        return isinstance(formula, Implication)
-
-    def apply(self) -> List[SignedFormula]:
-        if not self.is_applicable():
-            raise ValueError("Beta rule is not applicable to the given formula")
-
-        formula = self.signed_formula.formula
-
-        if isinstance(formula, Implication):
-            antecedent = formula.antecedent
-            consequent = formula.consequent
-
-            if self.signed_formula.is_positive():
-                return [SignedFormula('F', antecedent), SignedFormula('T', consequent)]
-            else:
-                return [SignedFormula('T', antecedent), SignedFormula('F', consequent)]
-
-
 class GammaRule(TableauRule):
     def __init__(self, signed_formula: SignedFormula) -> None:
         super().__init__(signed_formula)
