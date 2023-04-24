@@ -48,8 +48,15 @@ class TableauProver:
 
         return result
 
-    def _handle_and_or(self, signed_formula):
-        formula = signed_formula.formula
+    def _handle_and_or(self, param):
+        if isinstance(param, TableauNode):
+            formula = param.signed_formula.formula
+            signed_formula = param.signed_formula
+        elif isinstance(param, SignedFormula):
+            formula = param.formula
+            signed_formula = param
+        else:
+            raise ValueError("unexpected input to _handle_and_or")
 
         if isinstance(formula, Implication):
             if signed_formula.sign == "T":
@@ -87,10 +94,9 @@ class TableauProver:
         new_signed_formula = SignedFormula(new_sign, formula.expr)
         return [new_signed_formula]
 
-    def tableau_expansion(self, signed_formula, depth=0, max_depth=1000):
+    def tableau_expansion(self, node: TableauNode, depth=0, max_depth=1000):
+        signed_formula = node.signed_formula
         print(f"Depth: {depth}, Current signed formula: {signed_formula}")
-        node = TableauNode(signed_formula)
-        self.tableau_formulas.add(node)
 
         # Debug: Print the current signed formula and depth
         print(f"Depth: {depth}, Current signed formula: {signed_formula}")
@@ -120,7 +126,7 @@ class TableauProver:
         # Debug: Print the new signed formulas generated
         print(f"New signed formulas: {new_signed_formulas}")
 
-        results = [self.tableau_expansion(new_signed_formula, depth + 1, max_depth) for new_signed_formula in new_signed_formulas]
+        results = [self.tableau_expansion(node.add_child(new_signed_formula), depth + 1, max_depth) for new_signed_formula in new_signed_formulas]
         return any(results)
 
     def _is_tableau_closed(self, node):

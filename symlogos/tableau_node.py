@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, List
 from symlogos.signed_formula import SignedFormula
 
 class TableauNode:
@@ -24,3 +24,13 @@ class TableauNode:
             return self.parent.get_next_fresh_variable_index() + 1
         else:
             return 0
+
+    def get_ancestors(self) -> List['TableauNode']:
+        ancestors = []
+        current_node = self.parent
+
+        while current_node is not None:
+            ancestors.append(current_node)
+            current_node = current_node.parent
+
+        return ancestors
