@@ -102,6 +102,18 @@
 
 - `apply(self: unknown) -> List[SignedFormula]`
 
+### BetaRule
+
+#### Methods:
+
+- `__init__(self: unknown, signed_formula: SignedFormula) -> None`
+
+- `__hash__(self: unknown) -> unknown`
+
+- `is_applicable(self: unknown) -> bool`
+
+- `apply(self: unknown) -> List[SignedFormula]`
+
 ### GammaRule
 
 #### Methods:
@@ -595,6 +607,14 @@
 - `__init__(self: unknown) -> unknown`
 
 - `is_sound(self: unknown, premises: unknown, conclusion: unknown) -> unknown`
+
+- `_handle_and_or(self: unknown, signed_formula: unknown) -> unknown`
+
+- `_handle_quantifiers(self: unknown, node: unknown, signed_formula: unknown) -> unknown`
+
+- `_handle_modal_operators(self: unknown, signed_formula: unknown) -> unknown`
+
+- `_handle_not(self: unknown, signed_formula: unknown) -> unknown`
 
 - `tableau_expansion(self: unknown, signed_formula: unknown, depth: unknown, max_depth: unknown) -> unknown`
 
