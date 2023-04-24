@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 
-from symlogos.first_order_rules import AlphaRule, DeltaRule, GammaRule
+from symlogos.first_order_rules import AlphaRule, BetaRule, DeltaRule, GammaRule
 from symlogos.modal_operators import Necessity, Possibility
 from symlogos.proposition import Proposition
 from symlogos.tableau_node import TableauNode
@@ -36,12 +36,59 @@ class TableauProver:
         # Add the negated conclusion to the tableau formulas
         self.tableau_formulas.add(negated_conclusion)
 
+        # Print statements for debugging
+        print("Premises:", premises)
+        print("Conclusion:", conclusion)
+        print("Negated Conclusion:", negated_conclusion)
+        print("Tableau Formulas:", self.tableau_formulas)
+
         # Pass the signed formula to your tableau expansion methods and proceed with the tableau method
-        result = self.tableau_expansion(negated_conclusion)
+        initial_node = TableauNode(negated_conclusion)
+        result = self.tableau_expansion(initial_node)
 
         return result
 
+    def _handle_and_or(self, signed_formula):
+        formula = signed_formula.formula
+
+        if isinstance(formula, Implication):
+            if signed_formula.sign == "T":
+                return [SignedFormula("F", formula.left), SignedFormula("T", formula.right)]
+            else:
+                return [SignedFormula("T", formula.left), SignedFormula("F", formula.right)]
+        elif isinstance(formula, Not) and isinstance(formula.inner, Implication):
+            inner_formula = formula.inner
+            if signed_formula.sign == "T":
+                return [SignedFormula("T", inner_formula.left), SignedFormula("F", inner_formula.right)]
+            else:
+                return [SignedFormula("F", inner_formula.left), SignedFormula("T", inner_formula.right)]
+        else:
+            rule = AlphaRule(signed_formula)
+            return rule.apply()
+
+    def _handle_quantifiers(self, node, signed_formula):
+        if signed_formula.sign == "T" and isinstance(signed_formula.formula, Forall) or signed_formula.sign == "F" and isinstance(signed_formula.formula, Exists):
+            rule = GammaRule(signed_formula)
+        else:
+            rule = DeltaRule(signed_formula)
+        return [child.signed_formula for child in rule.apply(node)]
+
+    def _handle_modal_operators(self, signed_formula):
+        formula = signed_formula.formula
+        if isinstance(formula, Necessity):
+            rule = ModalBoxTRule(signed_formula) if signed_formula.sign == "T" else ModalBoxFRule(signed_formula)
+        else:  # isinstance(formula, Possibility)
+            rule = ModalDiamondTRule(signed_formula) if signed_formula.sign == "T" else ModalDiamondFRule(signed_formula)
+        return rule.apply()
+
+    def _handle_not(self, signed_formula):
+        formula = signed_formula.formula
+        new_sign = "T" if signed_formula.sign == "F" else "F"
+        new_signed_formula = SignedFormula(new_sign, formula.expr)
+        return [new_signed_formula]
+
     def tableau_expansion(self, signed_formula, depth=0, max_depth=1000):
+        print(f"Depth: {depth}, Current signed formula: {signed_formula}")
         node = TableauNode(signed_formula)
         self.tableau_formulas.add(node)
 
@@ -60,48 +107,16 @@ class TableauProver:
         # Apply tableau rules to the signed formula
         formula = signed_formula.formula
         if isinstance(formula, And) or isinstance(formula, Or):
-            rule = AlphaRule(signed_formula)
-            new_signed_formulas = rule.apply()
+            new_signed_formulas = self._handle_and_or(signed_formula)
         elif isinstance(formula, Forall) or isinstance(formula, Exists):
-            if signed_formula.sign == "T" and isinstance(formula, Forall) or signed_formula.sign == "F" and isinstance(formula, Exists):
-                rule = GammaRule(signed_formula)
-            else:
-                rule = DeltaRule(signed_formula)
-            new_signed_formulas = [child.signed_formula for child in rule.apply(node)]
-        # Add new cases for Necessity and Possibility
-        elif isinstance(formula, Necessity):
-            if signed_formula.sign == "T":
-                rule = ModalBoxTRule(signed_formula)
-            else:
-                rule = ModalBoxFRule(signed_formula)
-            new_signed_formulas = rule.apply()
-        elif isinstance(formula, Possibility):
-            if signed_formula.sign == "T":
-                rule = ModalDiamondTRule(signed_formula)
-            else:
-                rule = ModalDiamondFRule(signed_formula)
-            new_signed_formulas = rule.apply()
+            new_signed_formulas = self._handle_quantifiers(node, signed_formula)
+        elif isinstance(formula, Necessity) or isinstance(formula, Possibility):
+            new_signed_formulas = self._handle_modal_operators(signed_formula)
         elif isinstance(formula, Not):
-            # Create a new signed formula with the negated sign and the inner formula
-            new_sign = "T" if signed_formula.sign == "F" else "F"
-            new_signed_formula = SignedFormula(new_sign, formula.expr)  # Use expr attribute here
-            new_signed_formulas = [new_signed_formula]
-        elif isinstance(formula, Implication):
-            if signed_formula.sign == "T":
-                # Convert the implication to disjunction (¬A ∨ B) and apply the corresponding rule
-                new_formula = Or(Not(formula.antecedent), formula.consequent)
-                new_signed_formula = SignedFormula(signed_formula.sign, new_formula)
-                new_signed_formulas = [new_signed_formula]
-            else:
-                # Convert the negated implication to conjunction (A ∧ ¬B) and apply the corresponding rule
-                new_formula = And(formula.antecedent, Not(formula.consequent))
-                new_signed_formula = SignedFormula("T", new_formula)  # Use "T" since we are negating the implication
-                new_signed_formulas = [new_signed_formula]
-        elif isinstance(formula, Proposition):
-            return False  # Atomic propositions cannot be expanded further
+            new_signed_formulas = self._handle_not(signed_formula)
         else:
-            raise ValueError(f"Unsupported formula type: {type(formula).__name__}")
-        
+            new_signed_formulas = []
+
         # Debug: Print the new signed formulas generated
         print(f"New signed formulas: {new_signed_formulas}")
 
@@ -110,6 +125,13 @@ class TableauProver:
 
     def _is_tableau_closed(self, node):
         signed_formula = node.signed_formula
+        print(f"Checking closure for: {signed_formula}")
+
         opposite_sign = "T" if signed_formula.sign == "F" else "F"
         opposite_signed_formula = SignedFormula(opposite_sign, signed_formula.formula)
-        return opposite_signed_formula in self.tableau_formulas
+
+        for ancestor in node.get_ancestors():
+            if ancestor.signed_formula == opposite_signed_formula:
+                return True
+        return False
+

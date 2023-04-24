@@ -7,10 +7,13 @@ class ModalBoxTRule(TableauRule):
         super().__init__(signed_formula)
 
     def apply(self) -> list:
+        print(f"{self.__class__.__name__}: Applying rule to {self.signed_formula}")
         if not isinstance(self.signed_formula.formula, Necessity) or self.signed_formula.sign != "T":
             raise ValueError("Invalid signed formula for ModalBoxTRule")
         new_signed_formula = SignedFormula("T", self.signed_formula.formula.expr)
-        return [new_signed_formula]
+        result= [new_signed_formula]
+        print(f"{self.__class__.__name__}: Result: {result}")
+        return result
 
     def is_applicable(self) -> bool:
         return self.signed_formula.sign == "T" and isinstance(self.signed_formula.formula, Necessity)
@@ -20,10 +23,13 @@ class ModalBoxFRule(TableauRule):
         super().__init__(signed_formula)
 
     def apply(self) -> list:
+        print(f"{self.__class__.__name__}: Applying rule to {self.signed_formula}")
         if not isinstance(self.signed_formula.formula, Necessity) or self.signed_formula.sign != "F":
             raise ValueError("Invalid signed formula for ModalBoxFRule")
         new_signed_formula = SignedFormula("F", self.signed_formula.formula.expr)
-        return [new_signed_formula]
+        result = [new_signed_formula]
+        print(f"{self.__class__.__name__}: Result: {result}")
+        return result
 
     def is_applicable(self) -> bool:
         return self.signed_formula.sign == "F" and isinstance(self.signed_formula.formula, Necessity)
@@ -33,10 +39,13 @@ class ModalDiamondTRule(TableauRule):
         super().__init__(signed_formula)
 
     def apply(self) -> list:
+        print(f"{self.__class__.__name__}: Applying rule to {self.signed_formula}")
         if not isinstance(self.signed_formula.formula, Possibility) or self.signed_formula.sign != "T":
             raise ValueError("Invalid signed formula for ModalDiamondTRule")
         new_signed_formula = SignedFormula("T", self.signed_formula.formula.expr)
-        return [new_signed_formula]
+        result = [new_signed_formula]
+        print(f"{self.__class__.__name__}: Result: {result}")
+        return result
 
     def is_applicable(self) -> bool:
         return self.signed_formula.sign == "T" and isinstance(self.signed_formula.formula, Possibility)
@@ -46,10 +55,13 @@ class ModalDiamondFRule(TableauRule):
         super().__init__(signed_formula)
 
     def apply(self) -> list:
+        print(f"{self.__class__.__name__}: Applying rule to {self.signed_formula}")
         if not isinstance(self.signed_formula.formula, Possibility) or self.signed_formula.sign != "F":
             raise ValueError("Invalid signed formula for ModalDiamondFRule")
         new_signed_formula = SignedFormula("F", self.signed_formula.formula.expr)
-        return [new_signed_formula]
+        result = [new_signed_formula]
+        print(f"{self.__class__.__name__}: Result: {result}")
+        return result
 
     def is_applicable(self) -> bool:
         return self.signed_formula.sign == "F" and isinstance(self.signed_formula.formula, Possibility)
