@@ -28,6 +28,8 @@
 
 - `get_next_fresh_variable_index(self: unknown) -> int`
 
+- `get_ancestors(self: unknown) -> List['TableauNode']`
+
 ---
 
 # Module: symlogos.expressions_and_terms
@@ -608,7 +610,7 @@
 
 - `is_sound(self: unknown, premises: unknown, conclusion: unknown) -> unknown`
 
-- `_handle_and_or(self: unknown, signed_formula: unknown) -> unknown`
+- `_handle_and_or(self: unknown, param: unknown) -> unknown`
 
 - `_handle_quantifiers(self: unknown, node: unknown, signed_formula: unknown) -> unknown`
 
@@ -616,7 +618,7 @@
 
 - `_handle_not(self: unknown, signed_formula: unknown) -> unknown`
 
-- `tableau_expansion(self: unknown, signed_formula: unknown, depth: unknown, max_depth: unknown) -> unknown`
+- `tableau_expansion(self: unknown, node: TableauNode, depth: unknown, max_depth: unknown) -> unknown`
 
 - `_is_tableau_closed(self: unknown, node: unknown) -> unknown`
 
