@@ -16,37 +16,28 @@ class TableauProver:
         self.tableau_formulas = set()
 
     def is_sound(self, premises, conclusion):
-        # Convert premises and negated conclusion to signed formulas
-        def convert_to_signed_formula(formula, sign="T"):
-            if isinstance(formula, Implication):
-                if sign == "T":
-                    # Convert P -> Q to ~P or Q
-                    formula = Or(Not(formula.left), formula.right)
-                else:
-                    # Convert ~(P -> Q) to P and ~Q
-                    formula = And(formula.left, Not(formula.right))
-            return SignedFormula(sign, formula)
-
         # Create a set of signed formulas for the premises with the sign "T"
-        self.tableau_formulas = {convert_to_signed_formula(premise) for premise in premises}
+        tableau_formulas = {SignedFormula("T", premise) for premise in premises}
 
         # Create a signed formula for the negation of the conclusion with the sign "F"
-        negated_conclusion = convert_to_signed_formula(conclusion, sign="F")
+        negated_conclusion = SignedFormula("F", Not(conclusion))
 
         # Add the negated conclusion to the tableau formulas
-        self.tableau_formulas.add(negated_conclusion)
+        tableau_formulas.add(negated_conclusion)
 
         # Print statements for debugging
         print("Premises:", premises)
         print("Conclusion:", conclusion)
         print("Negated Conclusion:", negated_conclusion)
-        print("Tableau Formulas:", self.tableau_formulas)
+        print("Tableau Formulas:", tableau_formulas)
 
         # Pass the signed formula to your tableau expansion methods and proceed with the tableau method
         initial_node = TableauNode(negated_conclusion)
         result = self.tableau_expansion(initial_node)
 
-        return result
+        # Check if the tableau is closed
+        return not result
+
 
     def _handle_and_or(self, param):
         if isinstance(param, TableauNode):
@@ -69,6 +60,11 @@ class TableauProver:
                 return [SignedFormula("T", inner_formula.left), SignedFormula("F", inner_formula.right)]
             else:
                 return [SignedFormula("F", inner_formula.left), SignedFormula("T", inner_formula.right)]
+        elif isinstance(formula, And):
+            if signed_formula.sign == "T":
+                return [SignedFormula("T", formula.left), SignedFormula("T", formula.right)]
+            else:
+                return [SignedFormula("F", formula.left), SignedFormula("F", formula.right)]
         else:
             rule = AlphaRule(signed_formula)
             return rule.apply()
@@ -96,7 +92,6 @@ class TableauProver:
 
     def tableau_expansion(self, node: TableauNode, depth=0, max_depth=1000):
         signed_formula = node.signed_formula
-        print(f"Depth: {depth}, Current signed formula: {signed_formula}")
 
         # Debug: Print the current signed formula and depth
         print(f"Depth: {depth}, Current signed formula: {signed_formula}")
@@ -108,6 +103,7 @@ class TableauProver:
 
         # Check if the tableau is closed
         if self._is_tableau_closed(node):
+            print(f"Tableau closed at depth {depth} with signed formula {signed_formula}")
             return True
 
         # Apply tableau rules to the signed formula
@@ -129,15 +125,17 @@ class TableauProver:
         results = [self.tableau_expansion(node.add_child(new_signed_formula), depth + 1, max_depth) for new_signed_formula in new_signed_formulas]
         return any(results)
 
-    def _is_tableau_closed(self, node):
-        signed_formula = node.signed_formula
-        print(f"Checking closure for: {signed_formula}")
+    def _is_tableau_closed(self, node: TableauNode) -> bool:
+        signed_formulas = [node.signed_formula] + [ancestor.signed_formula for ancestor in node.get_ancestors()]
 
-        opposite_sign = "T" if signed_formula.sign == "F" else "F"
-        opposite_signed_formula = SignedFormula(opposite_sign, signed_formula.formula)
+        print("Signed formulas in the current branch:")
+        for sf in signed_formulas:
+            print(sf)
 
-        for ancestor in node.get_ancestors():
-            if ancestor.signed_formula == opposite_signed_formula:
-                return True
+        for sf1 in signed_formulas:
+            for sf2 in signed_formulas:
+                if sf1.formula == sf2.formula and sf1.sign != sf2.sign:
+                    return True
+
         return False
 
