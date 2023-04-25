@@ -620,7 +620,7 @@
 
 - `tableau_expansion(self: unknown, node: TableauNode, depth: unknown, max_depth: unknown) -> unknown`
 
-- `_is_tableau_closed(self: unknown, node: unknown) -> unknown`
+- `_is_tableau_closed(self: unknown, node: TableauNode) -> bool`
 
 ---
 
